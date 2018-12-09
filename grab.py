@@ -21,7 +21,22 @@ chs = ['bill-dauterive',
         'klaus-heisler',
         'bobby',
         'lois-griffin',
-        'hermes-conrad'
+        'hermes-conrad',
+        'mythic-stewie',
+        'mythic-quagmire',
+        'mythic-brian',
+        'mythic-stan',
+        'mythic-bullock',
+        'mythic-hayley',
+        'mythic-louise',
+        'mythic-bob',
+        'mythic-teddy',
+        'mythic-peggy',
+        'mythic-boomhauer',
+        'mythic-dale',
+        'mythic-leela',
+        'mythic-dr-zoidberg',
+        'mythic-professor-farnsworth',
         ]
 
 class at_card:
@@ -64,10 +79,13 @@ def analyse(ch):
             atcd.trait = card.attrib['trait']
         for node in card.find('cb-skills'):
             try:
-                atcd.skills.append([node.attrib['type'], int(node.text)])
+                value = int(node.text)
+                if 'target' in node.attrib:
+                    value = 0.7 * value
+                    #print(node.attrib['target'])
+                atcd.skills.append([node.attrib['type'], value])
             except:
                 continue
-        atcd.prt()
         atcds.append(atcd)
     data[ch] = atcds
 
