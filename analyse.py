@@ -25,7 +25,22 @@ chs = ['bill-dauterive',
         'klaus-heisler',
         'bobby',
         'lois-griffin',
-        'hermes-conrad'
+        'hermes-conrad',
+        'mythic-stewie',
+        'mythic-quagmire',
+        'mythic-brian',
+        'mythic-stan',
+        'mythic-bullock',
+        'mythic-hayley',
+        'mythic-louise',
+        'mythic-bob',
+        'mythic-teddy',
+        'mythic-peggy',
+        'mythic-boomhauer',
+        'mythic-dale',
+        'mythic-leela',
+        'mythic-dr-zoidberg',
+        'mythic-professor-farnsworth',
         ]
 
 skill_dict = {
@@ -53,27 +68,27 @@ skill_dict = {
 }
 
 skill_factor = {
-    'bodyguard': 0.7, #'bodyguard',
+    'bodyguard': 0.9, #'bodyguard',
     'inspire': 1.5, #'motivate',
-    'pierce': 0.6, #'jab',
+    'pierce': 0.8, #'jab',
     'poison': 1.5, #'gas',
     'strike': 1.2, #'punch',
     'armored': 1, #'sturdy',
     'berserk': 3, #'crazed',
-    'outlast': 0.4, #'recover',
+    'outlast': 0.5, #'recover',
     'invigorate': 0.6, #'boost',
     'counter': 1.1, #'payback',
-    'weaken': 0.5, #'cripple',
+    'weaken': 0.6, #'cripple',
     'leech': 1.6, #'leech',
     'weakenall': 1.3, #'cripple-all',
-    'barrier': 0.8, #'shield',
-    'barrierall': 1.2, #'shield-all',
+    'barrier': 0.7, #'shield',
+    'barrierall': 1.1, #'shield-all',
     'rallyall': 1, #'cheer-all',
-    'rally': 0.5, #'cheer',
+    'rally': 0.7, #'cheer',
     'heal': 0.7, #'heal',
     'healall': 0.8, #'heal-all',
     'shrapnel': 2.3, #'bomb',
-    'hijack': 0.3, #'hijack',
+    'hijack': 0.4, #'hijack',
 }
 
 maxm = {'hp': 0, 'atk': 0}
@@ -108,6 +123,13 @@ with open('combos', 'rb') as f:
     for ch in chs:
         csv += ch + ','
     csv += '\n'
+    def lack_of_skill_factor(num):
+        if num == 3:
+            return 1.0
+        elif num == 2:
+            return 1.2
+        elif num == 1:
+            return 1.3
     for bge in bges:
         csv += bge + ','
         if debug:
@@ -125,7 +147,7 @@ with open('combos', 'rb') as f:
                 combo_value += cd.atk/maxm['atk'] * 1.2
                 combo_value += cd.hp/maxm['hp']
                 for sk in cd.skills:
-                    combo_value += sk[1] * len(cd.skills)/3 /maxm[sk[0]] * skill_factor[sk[0]]
+                    combo_value += sk[1]/maxm[sk[0]] * skill_factor[sk[0]] * lack_of_skill_factor(len(cd.skills))
                 combo_values.append(combo_value)
             combo_values.sort()
             #print([ch, combo_values])
@@ -154,7 +176,3 @@ with open('combos', 'rb') as f:
         csv += '\n'
 with open('tb.csv', 'w') as f:
     f.write(csv)
-
-
-
-
