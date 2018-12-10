@@ -45,6 +45,7 @@ class at_card:
         self.hp = hp
         self.trait = 'none'
         self.skills = []
+        self.slug = ''
     def prt(self):
         print([self.atk, self.hp, self.trait, self.skills])
 
@@ -67,21 +68,29 @@ def analyse(ch):
     cards = tree.xpath('//cb-card')
     atcds = []
     index = 0
+    rarity = ''
     for card in cards:
         index += 1
         if index % 3 == 1:
             continue
         if index % 3 == 2:
+            rarity = card.attrib['rarity']
+            continue
+        if rarity != 'legendary':
             continue
         atcd = at_card(int(card.find('cb-stats')[0].text),
                 int(card.find('cb-stats')[1].text))
+        atcd.slug = card.attrib['slug']
         if 'trait' in card.attrib:
             atcd.trait = card.attrib['trait']
         for node in card.find('cb-skills'):
             try:
                 value = int(node.text)
                 if 'target' in node.attrib:
-                    value = 0.7 * value
+                    if node.attrib['targer'] == 'trait':
+                        value = 0.4 * value
+                    if node.attrib['targer'] == 'show':
+                        value = 0.3 * value
                     #print(node.attrib['target'])
                 atcd.skills.append([node.attrib['type'], value])
             except:
