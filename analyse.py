@@ -1,4 +1,5 @@
 import pickle, operator
+from math import sqrt
 
 class at_card:
     def __init__(self, atk, hp):
@@ -41,6 +42,7 @@ chs = ['bill-dauterive',
         'mythic-leela',
         'mythic-dr-zoidberg',
         'mythic-professor-farnsworth',
+        'mythic-bender',
         ]
 
 skill_dict = {
@@ -74,21 +76,21 @@ skill_factor = {
     'poison': 1.5, #'gas',
     'strike': 1.2, #'punch',
     'armored': 1, #'sturdy',
-    'berserk': 3.5, #'crazed',
+    'berserk': 3, #'crazed',
     'outlast': 0.5, #'recover',
     'invigorate': 0.7, #'boost',
     'counter': 1.1, #'payback',
     'weaken': 0.5, #'cripple',
     'leech': 1.6, #'leech',
-    'weakenall': 0.9, #'cripple-all',
+    'weakenall': 1.3, #'cripple-all',
     'barrier': 0.7, #'shield',
-    'barrierall': 1.1, #'shield-all',
-    'rallyall': 0.8, #'cheer-all',
+    'barrierall': 1.2, #'shield-all',
+    'rallyall': 0.9, #'cheer-all',
     'rally': 0.5, #'cheer',
     'heal': 0.7, #'heal',
     'healall': 0.8, #'heal-all',
-    'shrapnel': 2.6, #'bomb',
-    'hijack': 0.4, #'hijack',
+    'shrapnel': 2, #'bomb',
+    'hijack': 0.5, #'hijack',
 }
 
 maxm = {'hp': 0, 'atk': 0}
@@ -129,32 +131,32 @@ with open('combos', 'rb') as f:
             st.append(sk[0])
         if 'shrapnel' in st:
             if 'leech' in st:
-                bonus *= 1.3
+                bonus *= 1.13
             if 'armored' in st:
-                bonus *= 1.2
-            if 'pierce' in st:
-                bonus *= 1.15
-            if 'strike' in st:
                 bonus *= 1.1
+            if 'pierce' in st:
+                bonus *= 1.07
+            if 'strike' in st:
+                bonus *= 1.07
         elif 'berserk' in st:
             if 'leech' in st:
-                bonus *= 1.3
-            if 'armored' in st:
-                bonus *= 1.2
-            if 'pierce' in st:
                 bonus *= 1.15
-            if 'strike' in st:
+            if 'armored' in st:
                 bonus *= 1.1
+            if 'pierce' in st:
+                bonus *= 1.07
+            if 'strike' in st:
+                bonus *= 1.07
         elif 'counter' in st:
             if 'leech' in st:
-                bonus *= 1.3
+                bonus *= 1.15
         if 'leech' in st:
             if 'poison' in st:
-                bonus *= 1.2
+                bonus *= 1.1
         return bonus
 
-    debug = False 
-    verbose = {'bge': 'artistic', 'ch': 'mythic-peggy'}
+    debug = False
+    verbose = {'bge': 'athletic', 'ch': 'mythic-dr-zoidberg'}
     def lack_of_skill_factor(num):
         if num == 3:
             return 1.0
@@ -178,24 +180,30 @@ with open('combos', 'rb') as f:
                 combo_value += cd.atk/maxm['atk'] * 1.2
                 combo_value += cd.hp/maxm['hp'] * 1
                 #print([0, combo_value])
+                if debug:
+                    print([1, combo_value])
                 for sk in cd.skills:
-                    combo_value += sk[1]/maxm[sk[0]] * skill_factor[sk[0]] * lack_of_skill_factor(len(cd.skills))
-                combo_value *= dual_skill_bonus(cd.skills)
-                combo_values.append(combo_value)
+                    delta = sk[1]/maxm[sk[0]] * skill_factor[sk[0]] * lack_of_skill_factor(len(cd.skills))
+                    combo_value += delta
+                    if debug:
+                        print([1, sk, skill_factor[sk[0]], maxm[sk[0]], delta])
                 if debug:
                     print([cd.slug, cd.skills, combo_value])
-                    print([1, combo_value])
-            combo_values.sort()
+                combo_value *= dual_skill_bonus(cd.skills)
+                combo_values.append(combo_value)
             if debug:
                 print([ch, combo_values])
+            if debug:
+                continue
+            combo_values.sort()
             tr[ch] = 0.0
             n = min(20, len(combo_values))
             if n == 0:
                 continue
             total_wt = 0.0
             for i in range(0, n):
-                total_wt += 1/(i+1)
-                tr[ch] += combo_values[-(i+1)]/(i+1)
+                total_wt += 1/sqrt(i+1)
+                tr[ch] += combo_values[-(i+1)]/sqrt(i+1)
             tr[ch] /= total_wt
             print(tr[ch])
             tr[ch] += len(combo_values) / 100
@@ -213,30 +221,45 @@ with open('combos', 'rb') as f:
             else:
                 chd[x[0]] = 0.0
         for ch in chs:
-            rec[ch][bge] = str(chd[ch])
+            rec[ch][bge] = ("%.2f"%chd[ch])
     csv = ',sum of top 7,'
+    md = '| | Sum of top 7 |'
     for bge in bges:
         csv += bge + ','
+        md += bge + '|'
     csv += '\n'
+    md += '\n| --- | --- |'
+    for bge in bges:
+        md +=' --- |'
+    md += '\n|'
     idx = 1
     def sum_of_top6(ch):
         sm = 0.0
         arr = []
         for bge in bges:
-            arr.append(float(rec[ch][bge]))
+            arr.append((float(rec[ch][bge])))
         arr.sort()
         for i in range(1, 8):
             sm += arr[-i]
         return sm
-    for ch in chs:
-        idx += 1
-        csv += ch + ',%f,'%sum_of_top6(ch)
-        for bge in bges:
-            csv += rec[ch][bge] + ','
-        csv += '\n'
+    if not debug:
+        ch_srt = []
+        for ch in chs:
+            ch_srt.append([ch, sum_of_top6(ch)])
+        ch_srt.sort(key = lambda x : x[1], reverse = True)
+        for ch_pair in ch_srt:
+            ch = ch_pair[0]
+            idx += 1
+            csv += ch + ',%f,'%sum_of_top6(ch)
+            md += ch + '| %.2f |'%sum_of_top6(ch)
+            for bge in bges:
+                csv += rec[ch][bge] + ','
+                md += rec[ch][bge] + '|'
+            csv += '\n'
+            md += '\n|'
 
-with open('tb.csv', 'w') as f:
-    f.write(csv)
+        with open('tb.txt', 'w') as f:
+            f.write(md)
 
 
 
