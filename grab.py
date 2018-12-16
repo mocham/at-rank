@@ -37,6 +37,7 @@ chs = ['bill-dauterive',
         'mythic-leela',
         'mythic-dr-zoidberg',
         'mythic-professor-farnsworth',
+        'mythic-bender',
         ]
 
 class at_card:
