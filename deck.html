@@ -4,10 +4,10 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Deck power visualization tool</title>
+  <title>Deck power visualization tool, built by mlibna@reddit</title>
 </head>
 
-<body>
+<body style="background-color:powderblue;">
   <script type="text/javascript" src="scores.json"></script>
   <script>
     var my_deck = [
@@ -133,7 +133,17 @@
     Card list (separated by comma):
     <input type="text" id="card-list-input" style="width:100%;">
   </form>
-  <button type="button" onclick="console.log('go!');go()">Click Me!</button>
+  <div>
+  <br>
+  <b>
+  Example: copy and paste the following and click GO!
+  </b>
+  </br>
+  <div style="border-style:solid;">
+  dr-amy-wong,hank-hill,bobby,mythic-dr-zoidberg,eugene-belcher,leon-petard,hypnotoad,student-lucky,book-of-spells,iraq-lobster
+  </div>
+  </div>
+  <button type="button" onclick="console.log('go!');go()">GO!</button>
   <div id = "table"></div>
 </body>
 </html>
