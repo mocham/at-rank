@@ -10,8 +10,95 @@
 <body>
   <script type="text/javascript" src="scores.json"></script>
   <script>
+    var chs = ['bill-dauterive',
+        'philip-j-fry',
+        'dr-amy-wong',
+        'eugene-belcher',
+        'chris-griffin',
+        'meg-griffin',
+        'hank-hill',
+        'bender',
+        'steve-smith',
+        'peter',
+        'roger',
+        'tina',
+        'linda-belcher',
+        'klaus-heisler',
+        'bobby',
+        'francine-smith',
+        'lois-griffin',
+        'hermes-conrad',
+        'mythic-stewie',
+        'mythic-quagmire',
+        'mythic-brian',
+        'mythic-stan',
+        'mythic-bullock',
+        'mythic-hayley',
+        'mythic-louise',
+        'mythic-bob',
+        'mythic-teddy',
+        'mythic-peggy',
+        'mythic-boomhauer',
+        'mythic-dale',
+        'mythic-leela',
+        'mythic-dr-zoidberg',
+        'mythic-professor-farnsworth',
+        'mythic-bender',
+        'mythic-bobby',
+        'mythic-peter',
+        'mythic-tina',
+        'lvl0-mythic-bender',
+        'lvl0-mythic-bobby',
+        'lvl0-mythic-peter',
+        'lvl0-mythic-tina',
+        ];
+    var is_char(card){
+      for (var i = 0; i < chs.length; i++){
+        if (chs[i] == card) { return true; }
+      }
+      return false;
+    }
     var mydata = JSON.parse(data);
-    alert(mydata['bill-dauterive+quahog-preschool']);
+    var make_table = function(chs, its){
+      var h = '<table style="width:100%"><tr>';
+      its.forEach(
+          function(it){
+            h += '<th>' + it + '</th>';
+          }
+        );
+      h += '</tr>'
+      chs.forEach(
+          function(ch){
+            h += '<tr><td>' + ch + '</td>';
+            its.forEach(
+                function(it){
+                  h += '<td>' + mydata[ch + '+' + it].toString() + '</td>';
+                }
+              );
+            h += '</tr>';
+          }
+        );
+      h += '</table>';
+    };
+    var go = function(){
+      var val = document.getElementById('card-list-input').value;
+      var clist = val.split(',');
+      var chs = [];
+      var its = [];
+      clist.forEach(
+          function(cd){
+            if (is_char(cd)) {chs.push(cd);}
+            else {its.push(cd);}
+          }
+        );
+      var h = make_table(chs, its);
+      document.getElementById('table').html = h;
+    };
   </script>
+  <form>
+    Card list (separated by comma):
+    <input type="text" id="card-list-input">
+  </form>
+  <div id = "table"></div>
 </body>
 </html>
