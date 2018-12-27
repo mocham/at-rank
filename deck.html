@@ -52,7 +52,7 @@
         'lvl0-mythic-peter',
         'lvl0-mythic-tina',
         ];
-    var is_char(card){
+    var is_char = function(card){
       for (var i = 0; i < chs.length; i++){
         if (chs[i] == card) { return true; }
       }
@@ -66,7 +66,7 @@
             h += '<th>' + it + '</th>';
           }
         );
-      h += '</tr>'
+      h += '</tr>';
       chs.forEach(
           function(ch){
             h += '<tr><td>' + ch + '</td>';
@@ -99,6 +99,7 @@
     Card list (separated by comma):
     <input type="text" id="card-list-input">
   </form>
+  <button type="button" onclick="go()">Click Me!</button>
   <div id = "table"></div>
 </body>
 </html>
