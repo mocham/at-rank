@@ -79,6 +79,7 @@
           }
         );
       h += '</table>';
+      return h;
     };
     var go = function(){
       var val = document.getElementById('card-list-input').value;
@@ -92,6 +93,8 @@
           }
         );
       var h = make_table(chs, its);
+      console.log(chs);
+      console.log(its);
       document.getElementById('table').html = h;
     };
   </script>
