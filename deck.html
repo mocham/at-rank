@@ -10,6 +10,31 @@
 <body>
   <script type="text/javascript" src="scores.json"></script>
   <script>
+    var my_deck = [
+        'bending-school',
+        'bill-dauterive',
+        'bill-dauterive',
+        'bill-dauterive',
+        'bobby',
+        'dr-amy-wong',
+        'dr-banjo',
+        'dr-cahill',
+        'mythic-dr-zoidberg',
+        'eugene-belcher',
+        'hank-hill',
+        'hank-hill',
+        'horse-camp',
+        'leon-petard',
+        'leon-petard',
+        'peter',
+        'peter',
+        'professor-lerner',
+        'quahog-martial-arts-academy',
+        'quahog-preschool',
+        'student-lucky',
+        'stuffington-academy',
+        'tom-landry-middle-school',
+    ];
     var chs = ['bill-dauterive',
         'philip-j-fry',
         'dr-amy-wong',
@@ -60,7 +85,7 @@
     }
     var mydata = JSON.parse(data);
     var make_table = function(chs, its){
-      var h = '<table style="width:100%"><tr>';
+      var h = '<table style="width:100%"><tr><th></th>';
       its.forEach(
           function(it){
             h += '<th>' + it + '</th>';
@@ -72,7 +97,14 @@
             h += '<tr><td>' + ch + '</td>';
             its.forEach(
                 function(it){
-                  h += '<td>' + mydata[ch + '+' + it].toString() + '</td>';
+                  var power = 0;
+                  var color = '255';
+                  if ((ch + '+' + it) in mydata){
+                    power = (Math.round(mydata[ch + '+' + it]*100)/100);
+                    if (power > 5) { power = 5; }
+                    color = Math.round(255 - power*power/25*255).toString();
+                  }
+                  h += '<td style="background-color:rgb(255,' + color + ',' + color + ');">' + power.toString() + '</td>';
                 }
               );
             h += '</tr>';
@@ -81,9 +113,7 @@
       h += '</table>';
       return h;
     };
-    var go = function(){
-      var val = document.getElementById('card-list-input').value;
-      var clist = val.split(',');
+    var go = function(clist = document.getElementById('card-list-input').value.split(',')){
       var chs = [];
       var its = [];
       clist.forEach(
@@ -93,14 +123,15 @@
           }
         );
       var h = make_table(chs, its);
-      console.log(chs);
-      console.log(its);
-      document.getElementById('table').html = h;
+      //console.log(chs);
+      //console.log(its);
+      //console.log(h);
+      document.getElementById('table').innerHTML = h;
     };
   </script>
   <form>
     Card list (separated by comma):
-    <input type="text" id="card-list-input">
+    <input type="text" id="card-list-input" style="width:100%;">
   </form>
   <button type="button" onclick="console.log('go!');go()">Click Me!</button>
   <div id = "table"></div>
