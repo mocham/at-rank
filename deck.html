@@ -9,6 +9,7 @@
 
 <body style="background-color:powderblue;">
   <script type="text/javascript" src="scores.json"></script>
+  <script type="text/javascript" src="traits.json"></script>
   <script>
     var my_deck = [
         'bending-school',
@@ -82,19 +83,29 @@
         if (chs[i] == card) { return true; }
       }
       return false;
-    }
+    };
+    var bge_img_tag = function(it){
+        bge = traits[it];
+        return '<img src="img/icon_large_' + bge + '.png" style="max-width:100%;max-height:100%;">';
+    };
+    var rarity_img_tag = function(ch){
+        rarity = 'legendary';
+        if (ch.substring(0, 6) == 'mythic') {rarity = 'mythic';}
+        return '<img src="img/rarityicon_' + rarity + '.png" style="max-width:100%;max-height:100%;height:10px;width:10px;">';
+    };
     var mydata = JSON.parse(data);
+    var traits = JSON.parse(tr_data);
     var make_table = function(chs, its){
       var h = '<table style="width:100%"><tr><th></th>';
       its.forEach(
           function(it){
-            h += '<th>' + it + '</th>';
+            h += '<th>' + bge_img_tag(it) + it + '</th>';
           }
         );
       h += '</tr>';
       chs.forEach(
           function(ch){
-            h += '<tr><td>' + ch + '</td>';
+            h += '<tr><td>' + rarity_img_tag(ch) + ch + '</td>';
             its.forEach(
                 function(it){
                   var power = 0;
@@ -144,7 +155,7 @@
   </div>
   </div>
   <button type="button" onclick="console.log('go!');go()">GO!</button>
-  <div id = "table"></div>
-  <img src="img/icon_large_addicted.png">
+  <div id = "table" style="border-style:solid;">
+  </div>
 </body>
 </html>
