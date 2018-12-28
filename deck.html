@@ -146,6 +146,74 @@
       h += '</table>';
       return h;
     };
+    function getRandomSubarray(arr, size) {
+        var shuffled = arr.slice(0), i = arr.length, temp, index;
+        while (i--) {
+            index = Math.floor((i + 1) * Math.random());
+            temp = shuffled[index];
+            shuffled[index] = shuffled[i];
+            shuffled[i] = temp;
+        }
+        return shuffled.slice(0, size);
+    }
+    var best_combo = function(clist = document.getElementById('card-list-input').value.split(',')){
+        while (clist.length < 25) {clist.push('XXX');}
+        var best_scores = [];
+        var total_times = 50000;
+        for (var time = 0; time < total_times; time ++){
+            var draw = getRandomSubarray(clist, 5);
+            var best_combo;
+            var best_score = 0.0;
+            for (var i = 0; i < 5; i++){
+                for (var j = 0; j < 5; j++){
+                    var combo = draw[i] + '+' + draw[j];
+                    if (mydata[combo] > best_score){
+                        best_combo = combo;
+                        best_score = mydata[combo];
+                    }
+                }
+            }
+            best_scores.push(best_score);
+        }
+        var dict = {};
+        for (var i = 0; i < clist.length; i++){
+            for (var j = 0; j < clist.length; j++){
+                var combo = clist[i] + '+' + clist[j];
+                dict[mydata[combo]] = [];
+            }
+        }
+        for (var i = 0; i < clist.length; i++){
+            for (var j = 0; j < clist.length; j++){
+                var combo = clist[i] + '+' + clist[j];
+                var present = false;
+                if (!(combo in mydata)) continue;
+                for (var k = 0; k < dict[mydata[combo]].length; k++){
+                    if (dict[mydata[combo]][k] == combo) {
+                        present = true;
+                        //console.log(combo);
+                        //console.log(dict[mydata[combo]]);
+                    }
+                }
+                if (!present){
+                    dict[mydata[combo]].push(combo);
+                }
+            }
+        }
+        best_scores.sort();
+        var h = '<table style="border-style:solid;"><tr><th>%</th><th colspan="2">Worst case of best combo in the starting hand</th></tr>';
+        var rows = 20;
+        for (var i = 2; i < rows; i++){
+            h += '<tr><td style="border-right:solid 1px black;">' + ((rows-i)*100/rows).toString() + '%</td>';
+            var cs = best_scores[total_times/rows*i];
+            h += '<td>' + (Math.round(cs*100)/100).toString() + '</td><td>';
+            for (var j = 0; j < dict[cs].length; j++){
+                h += dict[cs][j] + ' ';
+            }
+            h += '</td></th>';
+        }
+        h += '</table>';
+        document.getElementById('best-combo').innerHTML = h;
+    };
     var go = function(clist = document.getElementById('card-list-input').value.split(',')){
       var chs = [];
       var its = [];
@@ -160,6 +228,7 @@
       //console.log(its);
       //console.log(h);
       document.getElementById('table').innerHTML = h;
+      best_combo(clist);
     };
   </script>
   <form>
@@ -176,7 +245,9 @@
   dr-amy-wong,hank-hill,bobby,mythic-dr-zoidberg,eugene-belcher,leon-petard,hypnotoad,student-lucky,book-of-spells,iraq-lobster
   </div>
   </div>
-  <button type="button" onclick="console.log('go!');go()" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">GO!</button>
+  <button type="button" onclick="console.log('go!');go()">GO!</button>
+  <div id = "best-combo" style="border-style:solid;">
+  </div>
   <div id = "table" style="border-style:solid;">
   </div>
 </body>
