@@ -36,6 +36,15 @@
         'stuffington-academy',
         'tom-landry-middle-school',
     ];
+    var rare_chs = [
+        'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy',    
+    ];
+    var common_chs = [
+        'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'stevs',    
+    ];
+    var epic_chs = [
+        'amy', 'bob', 'boomhauer', 'brian', 'francine', 'leela', 'louise', 'peggy', 'stan', 'stewie',     
+    ];
     var chs = [
         'amy', 'bob', 'boomhauer', 'brian', 'francine', 'leela', 'louise', 'peggy', 'stan', 'stewie',     
         'bill-dauterive',
@@ -93,6 +102,15 @@
     var rarity_img_tag = function(ch){
         rarity = 'legendary';
         if (ch.substring(0, 6) == 'mythic') {rarity = 'mythic';}
+        for (var i = 0; i < epic_chs.length; i++){
+            if (epic_chs[i] == ch) {rarity = 'epic';}
+        }
+        for (var i = 0; i < rare_chs.length; i++){
+            if (epic_chs[i] == ch) {rarity = 'rare';}
+        }
+        for (var i = 0; i < common_chs.length; i++){
+            if (epic_chs[i] == ch) {rarity = 'common';}
+        }
         return '<img src="img/rarityicon_' + rarity + '.png" style="max-width:100%;max-height:100%;height:20px;width:20px;">';
     };
     var mydata = JSON.parse(data);
