@@ -5,11 +5,52 @@
   <meta charset="utf-8">
 
   <title>Deck power visualization tool, built by mlibna@reddit</title>
+  <link rel="stylesheet" href="w3.css">
+  <script>
+    var skill_dict = {
+        'bodyguard': 'bodyguard',
+        'inspire': 'motivate',
+        'pierce': 'jab',
+        'poison': 'gas',
+        'strike': 'punch',
+        'armored': 'sturdy',
+        'berserk': 'crazed',
+        'outlast': 'recover',
+        'invigorate': 'boost',
+        'counter': 'payback',
+        'weaken': 'cripple',
+        'leech': 'leech',
+        'weakenall': 'cripple-all',
+        'barrier': 'shield',
+        'barrierall': 'shield-all',
+        'rallyall': 'cheer-all',
+        'rally': 'cheer',
+        'heal': 'heal',
+        'healall': 'heal-all',
+        'shrapnel': 'bomb',
+        'hijack': 'hijack',
+    };
+    function jsUcfirst(string){
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    var gen_skl_btn = function(){
+        var h = '';
+        Object.keys(skill_dict).forEach(
+            function(sk){
+                var skl = skill_dict[sk];
+                var sklL = jsUcfirst(skl);
+                h += '<a href="javascript:void(0);" onclick="javascript:document.getElementById(\'btn-skl\').innerHTML=\'' + skl  + '\';go(document.getElementById(\'btn-skl\').innerHTML);" class="w3-bar-item w3-button">' + sklL + '</a>';
+            }
+        );
+        document.getElementById('skl-popdown').innerHTML = h;
+    };
+  </script>
 </head>
 
-<body style="background-color:powderblue;">
+<body style="background-color:powderblue;" onload="gen_skl_btn();">
   <script type="text/javascript" src="scores.json"></script>
   <script type="text/javascript" src="traits.json"></script>
+  <script type="text/javascript" src="skills.json"></script>
   <script>
     var my_deck = [
         'bending-school',
@@ -37,6 +78,11 @@
         'stuffington-academy',
         'tom-landry-middle-school',
     ];
+    var mine = function() {
+        var s = my_deck[0];
+        for (var i = 1; i < my_deck.length; i++) s += ',' + my_deck[i];
+        document.getElementById('card-list-input').value = s;
+    };
     var rare_chs = [
         'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy',    
     ];
@@ -166,7 +212,8 @@
     };
     var mydata = JSON.parse(data);
     var traits = JSON.parse(tr_data);
-    var make_table = function(chs, its){
+    var skills = JSON.parse(sk_data);
+    var make_table = function(chs, its, skill = 'deck-power'){
       var h = '<table style="width:100%"><tr><th></th>';
       its.forEach(
           function(it){
@@ -181,10 +228,27 @@
                 function(it){
                   var power = 0;
                   var color = '255';
-                  if ((ch + '+' + it) in mydata){
-                    power = (Math.round(mydata[ch + '+' + it]*100)/100);
-                    if (power > 5) { power = 5; }
-                    color = Math.round(255 - power*power/25*255).toString();
+                  if (skill == 'deck-power'){
+                      if ((ch + '+' + it) in mydata){
+                        power = (Math.round(mydata[ch + '+' + it]*100)/100);
+                        if (power > 5) { power = 5; }
+                        color = Math.round(255 - power*power/25*255).toString();
+                      }
+                  }
+                  else{
+                      var mydict = skills[skill];
+                      var  sk_cap = parseInt(document.getElementById('sk-cap').value);
+                      if (sk_cap == NaN) {
+                          sk_cap = 25;
+                          document.getElementById('sk-cap').value = sk_cap;
+                      }
+
+                      if ((ch + '+' + it) in mydict){
+                          power = mydict[ch + '+' + it];
+                          if (power > sk_cap) {power = sk_cap;}
+                          else power = Math.round(power);
+                          color = Math.round(255 - power*power/sk_cap/sk_cap*255).toString();
+                      }
                   }
                   h += '<td style="background-color:rgb(255,' + color + ',' + color + ');">' + power.toString() + '</td>';
                 }
@@ -263,7 +327,7 @@
         h += '</table>';
         document.getElementById('best-combo').innerHTML = h;
     };
-    var go = function(clist = document.getElementById('card-list-input').value.split(',')){
+    var go = function(skill = 'deck-power', clist = document.getElementById('card-list-input').value.split(',')){
       var chs = [];
       var its = [];
       clist.forEach(
@@ -272,29 +336,38 @@
             else {its.push(cd);}
           }
         );
-      var h = make_table(chs, its);
-      //console.log(chs);
-      //console.log(its);
-      //console.log(h);
+      var h = make_table(chs, its, skill);
       document.getElementById('table').innerHTML = h;
-      best_combo(clist);
     };
   </script>
   <form>
-    Card list (separated by comma):
-    <input type="text" id="card-list-input" style="width:100%;">
-  </form>
   <div>
-  <br>
+    <p style="font-size: 28px">Card list (separated by comma): 
+    <input type="text" id="card-list-input" style="width:100%;font-size: 36px;">
+    </p>
   <b>
   Example: copy and paste the following and click GO!
   </b>
   </br>
   <div style="border-style:solid;">
-  dr-amy-wong,hank-hill,bobby,mythic-dr-zoidberg,eugene-belcher,leon-petard,hypnotoad,student-lucky,book-of-spells,iraq-lobster
+  dr-amy-wong_lvl_18,hank-hill,bobby,mythic-dr-zoidberg_lvl_1,eugene-belcher,leon-petard,hypnotoad,student-lucky,book-of-spells,iraq-lobster
   </div>
+  </form>
+  <div>
   </div>
-  <button type="button" onclick="console.log('go!');go()" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">GO!</button>
+  <div>
+  <button type="button" onclick="best_combo()" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">Starting hand analysis</button>
+  <button type="button" onclick="go()" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">Deck power analysis</button>
+  </div>
+  <div>
+  <button type="button" onclick="alert('click the button _select_skill_ on the right.');" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">Deck skill analysis</button>
+  <div class="w3-dropdown-hover">
+  <button class="w3-button" id="btn-skl" href="javascript:void(0);" type="button">Select skill</button>
+  <div class="w3-dropdown-content w3-bar-block w3-border" id="skl-popdown">
+  </div>
+  <div>Skill number cap <input type="text" id="sk-cap" value="25"></div>
+</div>
+  </div>
 
   <div id = "best-combo" style="border-style:solid;">
   </div>
