@@ -271,21 +271,66 @@
     }
     var best_combo = function(clist = document.getElementById('card-list-input').value.split(',')){
         while (clist.length < 25) {clist.push('XXX');}
+        var sk_pres = {}
+        var sk_ct = {}
         var best_scores = [];
         var total_times = 50000;
+        var init_hand_num = 5;
+        Object.keys(skill_dict).forEach(
+            function (sk){
+                sk_ct[sk] = 0;
+            }
+        );
+        var sk_dct = {};
+        clist.forEach(
+            function (ch){
+                clist.forEach(
+                    function (it){
+                        var combo = ch + '+' + it;
+                        sk_dct[combo] = []
+                        Object.keys(skill_dict).forEach(
+                            function (sk){
+                                if (combo in skills[skill_dict[sk]]){
+                                    sk_dct[combo].push(sk);
+                                }
+                            }
+                        );
+
+                    }
+                );
+            }
+        );
         for (var time = 0; time < total_times; time ++){
-            var draw = getRandomSubarray(clist, 5);
+            Object.keys(skill_dict).forEach(
+                function (sk){
+                    sk_pres[sk] = 0;
+                }
+            );
+            var draw = getRandomSubarray(clist, init_hand_num);
             var best_combo;
             var best_score = 0.0;
-            for (var i = 0; i < 5; i++){
-                for (var j = 0; j < 5; j++){
+
+            for (var i = 0; i < init_hand_num; i++){
+                for (var j = 0; j < init_hand_num; j++){
                     var combo = draw[i] + '+' + draw[j];
                     if (mydata[combo] > best_score){
                         best_combo = combo;
                         best_score = mydata[combo];
                     }
+                    sk_dct[combo].forEach(
+                        function (sk){
+                            sk_pres[sk] = 1;
+                        }
+                    );
                 }
             }
+            Object.keys(skill_dict).forEach(
+                function (sk){
+                    if (sk_pres[sk] > 0){
+                        sk_ct[sk] += 1;
+                    }
+                }
+            );
             best_scores.push(best_score);
         }
         var dict = {};
@@ -313,7 +358,7 @@
             }
         }
         best_scores.sort();
-        var h = '<table style="border-style:solid;"><tr><th>%</th><th colspan="2">Worst case of best combo in the starting hand</th></tr>';
+        var h = '<div class="row"><div class="column"><table style="border-style:solid;"><tr><th>%</th><th colspan="2">Worst case of best combo in the starting hand</th></tr>';
         var rows = 20;
         for (var i = 2; i < rows; i++){
             h += '<tr><td style="border-right:solid 1px black;">' + ((rows-i)*100/rows).toString() + '%</td>';
@@ -324,7 +369,24 @@
             }
             h += '</td></th>';
         }
-        h += '</table>';
+        h += '</table></div> <div class="column"><table style="border-style:solid;">';
+        var sk_arr = [];
+        Object.keys(skill_dict).forEach(
+            function (sk){
+                if (sk_ct[sk] > 0){
+                    sk_arr.push([skill_dict[sk], sk_ct[sk]/total_times]);
+                }
+            }
+        );
+        sk_arr.sort(
+            function (a, b) {return b[1] - a[1]; }
+        );
+        sk_arr.forEach(
+            function (sk_pair){
+                h += '<tr><td>' + sk_pair[0] + '</td><td>' + (sk_pair[1]).toString() + '</td></tr>';
+            }
+        );
+        h += '</div></div></table>'
         document.getElementById('best-combo').innerHTML = h;
     };
     var go = function(skill = 'deck-power', clist = document.getElementById('card-list-input').value.split(',')){
