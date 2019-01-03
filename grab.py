@@ -41,7 +41,7 @@ upgrade_dict = {
     'hank': 'hank-hill',
     'linda': 'linda-belcher',
     'lois': 'lois-griffin',
-    'stevs': 'steve-smith',
+    'steve': 'steve-smith',
     'bill': 'bill-dauterive',
     'gene': 'eugene-belcher',
     'hayley': 'mythic-hayley',
@@ -72,7 +72,7 @@ for lower in upgrade_dict:
     downgrade_dict[upgrade_dict[lower]] = lower
 
 chs = [
-        'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'stevs',
+        'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'steve',
         'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy', 
         'amy', 'bob', 'boomhauer', 'brian', 'francine', 'leela', 'louise', 'peggy', 'stan', 'stewie',
         'bill-dauterive',
@@ -142,7 +142,7 @@ stats = {
         'mort': [
             [0,0], [5,10],[0,0],
         ],
-        'stevs':[
+        'steve':[
             [0,0], [4,12], [0,0],
         ],
         'bill': [
@@ -345,6 +345,8 @@ class at_card:
         self.skills = []
         self.slug = ''
         self.item_slug = ''
+        self.item_rarity = ''
+        self.char_rarity = ''
     def prt(self):
         print([self.atk, self.hp, self.trait, self.skills])
     def alt(self, ch):
@@ -418,6 +420,7 @@ def analyse(ch):
     item_atk = 0
     item_hp = 0
     item_slug = ''
+    item_rarity = ''
     char_rarity = ''
     for card in cards:
         index += 1
@@ -433,17 +436,18 @@ def analyse(ch):
             item_atk = int(card.find('cb-stats')[0].text)
             item_hp = int(card.find('cb-stats')[1].text)
             item_slug = card.attrib['slug']
+            item_rarity = rarity
             trait_dict[item_slug] = trait
             continue
-        if char_rarity in ['legendary', 'mythic']:
-            if not (rarity in ['legendary', 'mythic']):
-                continue
-        #if rarity != 'legendary':
-        #    continue
+        #if char_rarity in ['legendary', 'mythic']:
+        #    if not (rarity in ['legendary', 'mythic']):
+        #        continue
         atcd = at_card(int(card.find('cb-stats')[0].text),
                 int(card.find('cb-stats')[1].text), item_atk, item_hp)
         atcd.slug = card.attrib['slug']
         atcd.item_slug = item_slug
+        atcd.item_rarity = item_rarity
+        atcd.char_rarity = char_rarity
         if 'trait' in card.attrib:
             if card.attrib['trait'] != trait:
                 #print([card.attrib['slug'], card.attrib['trait'], trait])
@@ -456,9 +460,9 @@ def analyse(ch):
                 value = int(node.text)
                 if 'target' in node.attrib:
                     if node.attrib['targer'] == 'trait':
-                        value = 0.4 * value
+                        value = 0.7 * value
                     if node.attrib['targer'] == 'show':
-                        value = 0.3 * value
+                        value = 0.6 * value
                     #print(node.attrib['target'])
                 atcd.skills.append([node.attrib['type'], value])
             except:

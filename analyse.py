@@ -14,7 +14,7 @@ class at_card:
 current_BGE = []#['educated']#['eduacated', 'addicted']
 
 chs = [
-        'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'stevs',
+        'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'steve',
         'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy', 
         'amy', 'bob', 'boomhauer', 'brian', 'francine', 'leela', 'louise', 'peggy', 'stan', 'stewie',        
         'bill-dauterive',
@@ -84,7 +84,7 @@ stats = {
         'mort': [
             [0,0], [5,10],[0,0],
         ],
-        'stevs':[
+        'steve':[
             [0,0], [4,12], [0,0],
         ],
         'bill': [
@@ -305,6 +305,7 @@ skill_dict = {
     'hijack': 'hijack',
 }
 
+
 skill_factor = {
     'bodyguard': 0.9, #'bodyguard',
     'inspire': 1.5, #'motivate',
@@ -329,6 +330,8 @@ skill_factor = {
     'hijack': 0.5, #'hijack',
 }
 
+
+
 maxm = {'hp': 0, 'atk': 0}
 bges = [#'none',
         'educated', 
@@ -347,6 +350,7 @@ bges = [#'none',
 tr = {}
 rec = {}
 score_dict = {}
+NBGE = 7
 
 with open('combos', 'rb') as f:
     data = pickle.load(f)
@@ -414,6 +418,9 @@ with open('combos', 'rb') as f:
             for cd in data[ch]:
                 if cd.trait != bge:
                     continue
+                if cd.char_rarity in ['legendary', 'mythic']:
+                    if not (cd.item_rarity in ['legendary', 'mythic']):
+                        continue
                 combo_value = 0.0
                 combo_value += cd.atk/maxm['atk'] * 1.2
                 combo_value += cd.hp/maxm['hp'] * 1
@@ -421,10 +428,16 @@ with open('combos', 'rb') as f:
                 if debug:
                     print([1, combo_value])
                 for sk in cd.skills:
-                    delta = sk[1]/maxm[sk[0]] * skill_factor[sk[0]] * lack_of_skill_factor(len(cd.skills))
+                    sk_factor = 0.1
+                    #for skc in skill_factor[sk[0]]:
+                    #    if sk[1] >= skc[1]:
+                    #        sk_factor = max(sk_factor, skc[0])
+                    sk_factor = skill_factor[sk[0]]
+                    delta = sk[1]/maxm[sk[0]] * sk_factor * lack_of_skill_factor(len(cd.skills))
                     combo_value += delta
                     if debug:
-                        print([1, sk, skill_factor[sk[0]], maxm[sk[0]], delta])
+                        pass
+                        #print([1, sk, skill_factor[sk[0]], maxm[sk[0]], delta])
                 if debug:
                     print([cd.slug, cd.skills, combo_value])
                 #combo_value *= dual_skill_bonus(cd.skills)
@@ -487,7 +500,7 @@ with open('combos', 'rb') as f:
             sum_of_factors_BGE += BGE_factor
             sum_of_factors += 1.0
         arr.sort()
-        for i in range(1, 8):
+        for i in range(1, NBGE + 1):
             sm += arr[-i]
         return sm * sum_of_factors/sum_of_factors_BGE
     def sum_of_top7(ch):
@@ -497,7 +510,7 @@ with open('combos', 'rb') as f:
             BGE_factor = 1.0
             arr.append((float(rec[ch][bge]))*BGE_factor)
         arr.sort()
-        for i in range(1, 8):
+        for i in range(1, NBGE + 1):
             sm += arr[-i]
         return sm
     if not debug:
@@ -507,6 +520,8 @@ with open('combos', 'rb') as f:
         ch_srt.sort(key = lambda x : x[1], reverse = True)
         for ch_pair in ch_srt:
             ch = ch_pair[0]
+            if not ('lvl' in ch):
+                continue
             idx += 1
             csv += ch + ',%.2f,%.2f'%(sum_of_top7_BGE(ch), sum_of_top7(ch))
             md += ch + '| %.2f | %.2f |'%(sum_of_top7_BGE(ch), sum_of_top7(ch))
