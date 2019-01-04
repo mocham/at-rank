@@ -1,0 +1,439 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Deck power visualization tool, built by mlibna@reddit</title>
+  <link rel="stylesheet" href="w3.css">
+  <script>
+    var skill_dict = {
+        'bodyguard': 'bodyguard',
+        'inspire': 'motivate',
+        'pierce': 'jab',
+        'poison': 'gas',
+        'strike': 'punch',
+        'armored': 'sturdy',
+        'berserk': 'crazed',
+        'outlast': 'recover',
+        'invigorate': 'boost',
+        'counter': 'payback',
+        'weaken': 'cripple',
+        'leech': 'leech',
+        'weakenall': 'cripple-all',
+        'barrier': 'shield',
+        'barrierall': 'shield-all',
+        'rallyall': 'cheer-all',
+        'rally': 'cheer',
+        'heal': 'heal',
+        'healall': 'heal-all',
+        'shrapnel': 'bomb',
+        'hijack': 'hijack',
+    };
+    function jsUcfirst(string){
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    var gen_skl_btn = function(){
+        var h = '';
+        Object.keys(skill_dict).forEach(
+            function(sk){
+                var skl = skill_dict[sk];
+                var sklL = jsUcfirst(skl);
+                h += '<a href="javascript:void(0);" onclick="javascript:document.getElementById(\'btn-skl\').innerHTML=\'' + skl  + '\';go(document.getElementById(\'btn-skl\').innerHTML);" class="w3-bar-item w3-button">' + sklL + '</a>';
+            }
+        );
+        document.getElementById('skl-popdown').innerHTML = h;
+    };
+  </script>
+</head>
+
+<body style="background-color:powderblue;" onload="gen_skl_btn();">
+  <script type="text/javascript" src="scores.json"></script>
+  <script type="text/javascript" src="traits.json"></script>
+  <script type="text/javascript" src="skills.json"></script>
+  <script>
+    var my_deck = [
+        'bending-school',
+        'bill-dauterive',
+        'bill-dauterive',
+        'bill-dauterive',
+        'bill-dauterive',
+        'mythic-bobby_lvl_1',
+        'bobby',
+        'hank-hill',
+        'hank-hill',
+        'peter_lvl_18',
+        'dr-amy-wong',
+        'mythic-dr-zoidberg_lvl_1',
+        'eugene-belcher_lvl_18',
+        'dr-banjo',
+        'dr-cahill',
+        'professor-lerner',
+        'stuffington-academy',
+        'quahog-preschool',
+        'student-lucky',
+        'tom-landry-middle-school',
+        'quahog-martial-arts-academy',
+        'horse-camp',
+        'leon-petard',
+        'leon-petard',
+    ];
+    var mine = function() {
+        var s = my_deck[0];
+        for (var i = 1; i < my_deck.length; i++) s += ',' + my_deck[i];
+        document.getElementById('card-list-input').value = s;
+    };
+    var rare_chs = [
+        'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy',    
+    ];
+    var common_chs = [
+        'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'stevs',    
+    ];
+    var epic_chs = [
+        'amy', 'bob', 'boomhauer', 'brian', 'francine', 'leela', 'louise', 'peggy', 'stan', 'stewie',     
+    ];
+    var leg_chs = [
+        'bill-dauterive',
+        'philip-j-fry',
+        'dr-amy-wong',
+        'eugene-belcher',
+        'chris-griffin',
+        'meg-griffin',
+        'hank-hill',
+        'bender',
+        'steve-smith',
+        'peter',
+        'roger',
+        'tina',
+        'linda-belcher',
+        'klaus-heisler',
+        'bobby',
+        'francine-smith',
+        'lois-griffin',
+        'hermes-conrad',
+    ];
+    var mythic_chs = [
+        'mythic-stewie',
+        'mythic-quagmire',
+        'mythic-brian',
+        'mythic-stan',
+        'mythic-bullock',
+        'mythic-hayley',
+        'mythic-louise',
+        'mythic-bob',
+        'mythic-teddy',
+        'mythic-peggy',
+        'mythic-boomhauer',
+        'mythic-dale',
+        'mythic-leela',
+        'mythic-dr-zoidberg',
+        'mythic-professor-farnsworth',
+        'mythic-bender',
+        'mythic-bobby',
+        'mythic-peter',
+        'mythic-tina',
+    ];
+    var chs = [
+        'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'stevs',    
+        'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy',    
+        'amy', 'bob', 'boomhauer', 'brian', 'francine', 'leela', 'louise', 'peggy', 'stan', 'stewie',     
+        'bill-dauterive',
+        'philip-j-fry',
+        'dr-amy-wong',
+        'eugene-belcher',
+        'chris-griffin',
+        'meg-griffin',
+        'hank-hill',
+        'bender',
+        'steve-smith',
+        'peter',
+        'roger',
+        'tina',
+        'linda-belcher',
+        'klaus-heisler',
+        'bobby',
+        'francine-smith',
+        'lois-griffin',
+        'hermes-conrad',
+        'mythic-stewie',
+        'mythic-quagmire',
+        'mythic-brian',
+        'mythic-stan',
+        'mythic-bullock',
+        'mythic-hayley',
+        'mythic-louise',
+        'mythic-bob',
+        'mythic-teddy',
+        'mythic-peggy',
+        'mythic-boomhauer',
+        'mythic-dale',
+        'mythic-leela',
+        'mythic-dr-zoidberg',
+        'mythic-professor-farnsworth',
+        'mythic-bender',
+        'mythic-bobby',
+        'mythic-peter',
+        'mythic-tina',
+        ];
+    
+    mythic_chs.forEach(
+        function (ch){
+            chs.push(ch + '_lvl_1');
+        }
+    );
+    leg_chs.forEach(
+        function (ch){
+            chs.push(ch + '_lvl_18');
+        }
+    );
+    var is_char = function(card){
+      for (var i = 0; i < chs.length; i++){
+        if (chs[i] == card) { return true; }
+      }
+      return false;
+    };
+    var bge_img_tag = function(it){
+        bge = traits[it];
+        return '<img src="img/icon_large_' + bge + '.png" style="max-width:100%;max-height:100%;height:20px;width:20px;">';
+    };
+    var rarity_img_tag = function(ch){
+        rarity = 'legendary';
+        if (ch.substring(0, 6) == 'mythic') {rarity = 'mythic';}
+        for (var i = 0; i < epic_chs.length; i++){
+            if (epic_chs[i] == ch) {rarity = 'epic';}
+        }
+        for (var i = 0; i < rare_chs.length; i++){
+            if (rare_chs[i] == ch) {rarity = 'rare';}
+        }
+        for (var i = 0; i < common_chs.length; i++){
+            if (common_chs[i] == ch) {rarity = 'common';}
+        }
+        return '<img src="img/rarityicon_' + rarity + '.png" style="max-width:100%;max-height:100%;height:20px;width:20px;">';
+    };
+    var mydata = JSON.parse(data);
+    var traits = JSON.parse(tr_data);
+    var skills = JSON.parse(sk_data);
+    var make_table = function(chs, its, skill = 'deck-power'){
+      var h = '<table style="width:100%"><tr><th></th>';
+      its.forEach(
+          function(it){
+            h += '<th>' + bge_img_tag(it) + it + '</th>';
+          }
+        );
+      h += '</tr>';
+      chs.forEach(
+          function(ch){
+            h += '<tr><td>' + rarity_img_tag(ch) + ch + '</td>';
+            its.forEach(
+                function(it){
+                  var power = 0;
+                  var color = '255';
+                  if (skill == 'deck-power'){
+                      if ((ch + '+' + it) in mydata){
+                        power = (Math.round(mydata[ch + '+' + it]*100)/100);
+                        if (power > 5) { power = 5; }
+                        color = Math.round(255 - power*power/25*255).toString();
+                      }
+                  }
+                  else{
+                      var mydict = skills[skill];
+                      var  sk_cap = parseInt(document.getElementById('sk-cap').value);
+                      if (sk_cap == NaN) {
+                          sk_cap = 25;
+                          document.getElementById('sk-cap').value = sk_cap;
+                      }
+
+                      if ((ch + '+' + it) in mydict){
+                          power = mydict[ch + '+' + it];
+                          if (power > sk_cap) {power = sk_cap;}
+                          else power = Math.round(power);
+                          color = Math.round(255 - power*power/sk_cap/sk_cap*255).toString();
+                      }
+                  }
+                  h += '<td style="background-color:rgb(255,' + color + ',' + color + ');">' + power.toString() + '</td>';
+                }
+              );
+            h += '</tr>';
+          }
+        );
+      h += '</table>';
+      return h;
+    };
+    function getRandomSubarray(arr, size) {
+        var shuffled = arr.slice(0), i = arr.length, temp, index;
+        while (i--) {
+            index = Math.floor((i + 1) * Math.random());
+            temp = shuffled[index];
+            shuffled[index] = shuffled[i];
+            shuffled[i] = temp;
+        }
+        return shuffled.slice(0, size);
+    }
+    var best_combo = function(clist = document.getElementById('card-list-input').value.split(',')){
+        while (clist.length < 25) {clist.push('XXX');}
+        var sk_pres = {}
+        var sk_ct = {}
+        var best_scores = [];
+        var total_times = 50000;
+        var init_hand_num = 5;
+        Object.keys(skill_dict).forEach(
+            function (sk){
+                sk_ct[sk] = 0;
+            }
+        );
+        var sk_dct = {};
+        clist.forEach(
+            function (ch){
+                clist.forEach(
+                    function (it){
+                        var combo = ch + '+' + it;
+                        sk_dct[combo] = []
+                        Object.keys(skill_dict).forEach(
+                            function (sk){
+                                if (combo in skills[skill_dict[sk]]){
+                                    sk_dct[combo].push(sk);
+                                }
+                            }
+                        );
+
+                    }
+                );
+            }
+        );
+        for (var time = 0; time < total_times; time ++){
+            Object.keys(skill_dict).forEach(
+                function (sk){
+                    sk_pres[sk] = 0;
+                }
+            );
+            var draw = getRandomSubarray(clist, init_hand_num);
+            var best_combo;
+            var best_score = 0.0;
+
+            for (var i = 0; i < init_hand_num; i++){
+                for (var j = 0; j < init_hand_num; j++){
+                    var combo = draw[i] + '+' + draw[j];
+                    if (mydata[combo] > best_score){
+                        best_combo = combo;
+                        best_score = mydata[combo];
+                    }
+                    sk_dct[combo].forEach(
+                        function (sk){
+                            sk_pres[sk] = 1;
+                        }
+                    );
+                }
+            }
+            Object.keys(skill_dict).forEach(
+                function (sk){
+                    if (sk_pres[sk] > 0){
+                        sk_ct[sk] += 1;
+                    }
+                }
+            );
+            best_scores.push(best_score);
+        }
+        var dict = {};
+        for (var i = 0; i < clist.length; i++){
+            for (var j = 0; j < clist.length; j++){
+                var combo = clist[i] + '+' + clist[j];
+                dict[mydata[combo]] = [];
+            }
+        }
+        for (var i = 0; i < clist.length; i++){
+            for (var j = 0; j < clist.length; j++){
+                var combo = clist[i] + '+' + clist[j];
+                var present = false;
+                if (!(combo in mydata)) continue;
+                for (var k = 0; k < dict[mydata[combo]].length; k++){
+                    if (dict[mydata[combo]][k] == combo) {
+                        present = true;
+                        //console.log(combo);
+                        //console.log(dict[mydata[combo]]);
+                    }
+                }
+                if (!present){
+                    dict[mydata[combo]].push(combo);
+                }
+            }
+        }
+        best_scores.sort();
+        var h = '<div class="row"><div class="column"><table style="border-style:solid;"><tr><th>%</th><th colspan="2">Worst case of best combo in the starting hand</th></tr>';
+        var rows = 20;
+        for (var i = 2; i < rows; i++){
+            h += '<tr><td style="border-right:solid 1px black;">' + ((rows-i)*100/rows).toString() + '%</td>';
+            var cs = best_scores[total_times/rows*i];
+            h += '<td>' + (Math.round(cs*100)/100).toString() + '</td><td>';
+            for (var j = 0; j < dict[cs].length; j++){
+                h += dict[cs][j] + ' ';
+            }
+            h += '</td></th>';
+        }
+        h += '</table></div> <div class="column"><table style="border-style:solid;">';
+        var sk_arr = [];
+        Object.keys(skill_dict).forEach(
+            function (sk){
+                if (sk_ct[sk] > 0){
+                    sk_arr.push([skill_dict[sk], sk_ct[sk]/total_times]);
+                }
+            }
+        );
+        sk_arr.sort(
+            function (a, b) {return b[1] - a[1]; }
+        );
+        sk_arr.forEach(
+            function (sk_pair){
+                h += '<tr><td>' + sk_pair[0] + '</td><td>' + (sk_pair[1]).toString() + '</td></tr>';
+            }
+        );
+        h += '</div></div></table>'
+        document.getElementById('best-combo').innerHTML = h;
+    };
+    var go = function(skill = 'deck-power', clist = document.getElementById('card-list-input').value.split(',')){
+      var chs = [];
+      var its = [];
+      clist.forEach(
+          function(cd){
+            if (is_char(cd)) {chs.push(cd);}
+            else {its.push(cd);}
+          }
+        );
+      var h = make_table(chs, its, skill);
+      document.getElementById('table').innerHTML = h;
+    };
+  </script>
+  <form>
+  <div>
+    <p style="font-size: 28px">Card list (separated by comma): 
+    <input type="text" id="card-list-input" style="width:100%;font-size: 36px;">
+    </p>
+  <b>
+  Example: copy and paste the following and click GO!
+  </b>
+  </br>
+  <div style="border-style:solid;">
+  dr-amy-wong_lvl_18,hank-hill,bobby,mythic-dr-zoidberg_lvl_1,eugene-belcher,leon-petard,hypnotoad,student-lucky,book-of-spells,iraq-lobster
+  </div>
+  </form>
+  <div>
+  </div>
+  <div>
+  <button type="button" onclick="best_combo()" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">Starting hand analysis</button>
+  <button type="button" onclick="go()" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">Deck power analysis</button>
+  </div>
+  <div>
+  <button type="button" onclick="alert('click the button _select_skill_ on the right.');" style="background-color: #4CAF50;padding: 15px 32px;font-size: 32px;">Deck skill analysis</button>
+  <div class="w3-dropdown-hover">
+  <button class="w3-button" id="btn-skl" href="javascript:void(0);" type="button">Select skill</button>
+  <div class="w3-dropdown-content w3-bar-block w3-border" id="skl-popdown">
+  </div>
+  <div>Skill number cap <input type="text" id="sk-cap" value="25"></div>
+</div>
+  </div>
+
+  <div id = "best-combo" style="border-style:solid;">
+  </div>
+  <div id = "table" style="border-style:solid;">
+  </div>
+</body>
+</html>
