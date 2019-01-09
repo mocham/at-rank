@@ -283,7 +283,7 @@
           <button type="button" onclick="best_combo()" class="b1">Starting hand analysis</button>
           <button type="button" onclick="go()" class="b2">Deck power analysis</button>
           <button type="button" onclick="optimize_deck()" class="b3">Optimize</button>
-          <button type="button" class="b4" id="myBtn">Analyse skills</button>
+          <button type="button" class="b4" onclick="document.getElementById('myModal').style.display='block';" id="myBtn">Analyse skills</button>
           <button type="button" onclick="alert('dr-amy-wong_lvl_18,hank-hill,bobby,mythic-dr-zoidberg_lvl_1,eugene-belcher,leon-petard,hypnotoad,student-lucky,book-of-spells,iraq-lobster');" class="b5">Example</button>
     </div>
         <div>
@@ -320,11 +320,6 @@ var btn = document.getElementById("myBtn");
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks on the button, open the modal 
-btn.onclick = function() {
-  modal.style.display = "block";
-}
 
 // When the user clicks on <span> (x), close the modal
 span.onclick = function() {
