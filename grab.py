@@ -71,6 +71,7 @@ upgrade_dict = {
 for lower in upgrade_dict:
     downgrade_dict[upgrade_dict[lower]] = lower
 
+
 chs = [
         'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'steve',
         'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy', 
@@ -113,6 +114,18 @@ chs = [
         'mythic-peter',
         'mythic-tina',
         ]
+
+maxed_out_items = {
+    'dr-cahill': [10, 52],
+    'horse-camp': [10, 45],
+    'leon-petard': [17, 41],
+    'quahog-martial-arts-academy': [16,33],
+    'ski-mask': [12, 40],
+    'stuffington-academy': [12, 43],
+    'tom-landry-middle-school': [17, 39],
+    'blernsball': [12, 42],
+    'james-woods-high-school': [11,46],
+}
 
 stats = {
         'bullock':[
@@ -333,7 +346,9 @@ def type_of_ch(ch):
 data = {}
 trait_dict = {}
 dic = {}
+combo_dict = {}
 
+koth = ['mythic-bobby', 'mythic-peggy', 'mythic-boomhauer', 'hank-hill', 'bobby', 'bill-dauterive']
 
 class at_card:
     def __init__(self, atk, hp, item_atk, item_hp):
@@ -350,28 +365,46 @@ class at_card:
     def prt(self):
         print([self.atk, self.hp, self.trait, self.skills])
     def alt(self, ch):
+        if '_lvl_18' in self.item_slug:
+            return
         if not(ch in downgrade_dict):
             #print("%s not in downgrade dict."%ch)
             return
-        def alt_sub(atk0, hp0, atkm, hpm, atk1, hp1, ch_alt):
-            atk_ratio = (self.item_atk + atkm)/(self.item_atk + atk1)
-            hp_ratio = (self.item_hp + hpm)/(self.item_hp + hp1)
+        def alt_sub(atk0, hp0, atkm, hpm, atk1, hp1, ch_alt, alt_type = 'C'):
+            if alt_type == 'C':
+                atk0 += self.item_atk
+                atkm += self.item_atk
+                atk1 += self.item_atk
+                hp0 += self.item_hp
+                hpm += self.item_hp
+                hp1 += self.item_hp
+            else:
+                assert(self.item_slug in maxed_out_items)
+                atk0 += self.item_atk
+                atkm += maxed_out_items[self.item_slug][0]
+                atk1 += self.item_atk
+                hp0 += self.item_hp
+                hpm += maxed_out_items[self.item_slug][1]
+                hp1 += self.item_hp
+            atk_ratio = atkm/atk1
+            hp_ratio = hpm/hp1
             cd = at_card(self.atk * atk_ratio, self.hp * hp_ratio, self.item_atk, self.item_hp)
             cd.trait = self.trait
             cd.slug = self.slug
-            cd.item_slug = self.item_slug
-            combo_power1 = (self.item_hp + self.item_atk * 3 + hp0 + atk0 * 3)
-            combo_power2 = (self.item_hp + self.item_atk * 3 + hpm + atkm * 3)
-            combo_power3 = (self.item_hp + self.item_atk * 3 + hp1 + atk1 * 3)
+            cd.item_rarity = self.item_rarity
+            cd.char_rarity = self.char_rarity
+            if alt_type == 'C':
+                cd.item_slug = self.item_slug
+            else:
+                cd.item_slug = self.item_slug + '_lvl_18'
+            combo_power1 = (hp0 + atk0 * 3)
+            combo_power2 = (hpm + atkm * 3)
+            combo_power3 = (hp1 + atk1 * 3)
             a = (combo_power2 - combo_power3) / (combo_power1 - combo_power3)
             b = 1 - a
-            if (ch_alt[-1] == '8') and (ch[0] != 'm'):
-                print(combo_power1, combo_power2, combo_power3, ch, downgrade_dict[ch], ch_alt)
-                print("XX ", a * combo_power1 + b * combo_power3, combo_power2, a, b)
-            #if not (0<a<1):
+            #if (ch_alt[-1] == '8') and (ch[0] != 'm'):
             #    print(combo_power1, combo_power2, combo_power3, ch, downgrade_dict[ch], ch_alt)
-            #    assert(0<a<1)
-            #print("XX ", a * combo_power1 + b * combo_power3, combo_power2, a, b)
+            #    print("XX ", a * combo_power1 + b * combo_power3, combo_power2, a, b)
             dch = downgrade_dict[ch]
             for sk in self.skills:
                 if not (dch + '+' + self.item_slug) in dic:
@@ -381,21 +414,34 @@ class at_card:
                     if skl[0] == sk[0]:
                         cd.skills.append([sk[0], skl[1] * a + sk[1] * b])
                         if (ch_alt[-1] == '8') and (ch[0] != 'm'):
-                            print(skl, sk, cd.skills[-1])
+                            #print(skl, sk, cd.skills[-1])
                             assert(cd.skills[-1][1]>sk[1])
 
+            if alt_type != 'C':
+                #print(ch_alt+'+'+cd.item_slug, cd.hp, cd.atk, cd.skills, [atk0, atk1, atkm])
+                pass
             if not (ch_alt in data):
                 data[ch_alt] = []
             data[ch_alt].append(cd)
+
         [atk0, hp0] = stats[downgrade_dict[ch]][1]
         [atk1, hp1] = stats[ch][1]
         ch_alt = ch
         if type_of_ch(ch) == 'legendary':
             alt_sub(atk0, hp0, *stats[ch][2], atk1, hp1, ch + '_lvl_18')
+            if self.item_slug in maxed_out_items:
+                alt_sub(atk0, hp0, *stats[ch][1], atk1, hp1, ch, 'I')
+                alt_sub(atk0, hp0, *stats[ch][2], atk1, hp1, ch + '_lvl_18', 'CI')
         elif type_of_ch(ch) == 'mythic':
             alt_sub(atk0, hp0, *stats[ch][0], atk1, hp1, ch + '_lvl_1')
+            if self.item_slug in maxed_out_items:
+                #alt_sub(atk0, hp0, *stats[ch][1], atk1, hp1, ch, 'I')
+                alt_sub(atk0, hp0, *stats[ch][0], atk1, hp1, ch + '_lvl_1', 'CI')
         if (type_of_ch(ch) == 'mythic') and (type_of_ch(downgrade_dict[ch]) == 'legendary'):
             alt_sub(atk0, hp0, *stats[downgrade_dict[ch]][2], atk1, hp1, downgrade_dict[ch] + '_lvl_18')
+            if self.item_slug in maxed_out_items:
+                alt_sub(atk0, hp0, *stats[downgrade_dict[ch]][1], atk1, hp1, downgrade_dict[ch], 'I')
+                alt_sub(atk0, hp0, *stats[downgrade_dict[ch]][2], atk1, hp1, downgrade_dict[ch] + '_lvl_18', 'CI')
 
 def analyse(ch):
     fn = 'html/' + ch + '.html'
@@ -459,11 +505,12 @@ def analyse(ch):
             try:
                 value = int(node.text)
                 if 'target' in node.attrib:
-                    if node.attrib['targer'] == 'trait':
-                        value = 0.7 * value
-                    if node.attrib['targer'] == 'show':
-                        value = 0.6 * value
-                    #print(node.attrib['target'])
+                    #if card.attrib['slug'] == 'sex-ed-teacher':
+                    #    print(node.attrib)
+                    if node.attrib['target'] == 'trait':
+                        value = 1 * value
+                    if node.attrib['target'] == 'show':
+                        value = 1 * value
                 atcd.skills.append([node.attrib['type'], value])
             except:
                 continue
@@ -484,8 +531,12 @@ skills = {}
 for skill in skill_dict:
     skills[skill_dict[skill]] = {}
 
+cminit = {}
+
 for ch in data:
     for cd in data[ch]:
+        combo_dict[ch + '+' + cd.item_slug] = cd.slug
+        cminit[cd.slug] = 0
         for sk in cd.skills:
             skills[skill_dict[sk[0]]][ch + '+' + cd.item_slug] = sk[1]
 
@@ -497,4 +548,4 @@ with open('traits.json', 'w') as f:
 
 
 with open('skills.json', 'w') as f:
-    f.write('sk_data = \'' + json.dumps(skills) + '\';')
+    f.write('sk_data = \'' + json.dumps(skills) + '\';\ncombo_data = \'' + json.dumps(combo_dict) + '\';\n' + 'cm_data = \'' + json.dumps(cminit) + '\';\n')

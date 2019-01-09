@@ -13,6 +13,40 @@ class at_card:
 
 current_BGE = []#['educated']#['eduacated', 'addicted']
 
+combo_mastery = {
+    'cigarette-addicts': 1,
+    'dolphin-rider-peter': 1,
+    'guidance-counselor': 1,
+    'assasin-bender': 1,
+    'betsy': 1,
+    'cleaning-wench': 1,
+    'clobberella': 1,
+    'crayon-drawing': 1,
+    'devil-hank': 1,
+    'dr-bobbenstein': 1,
+    'egg-vs-tornado': 1,
+    'future-meg': 1,
+    'high-school-bill': 1,
+    'karate-stewie': 1,
+    'nun-francine': 1,
+    'one-man-musical': 1,
+    'pirate-cannon-peter': 1,
+    'prison-meg': 1,
+    'sexy-cat': 1,
+    'sister-peter': 1,
+    'the-billdozer': 1,
+    'trippy-zoidberg': 1,
+    'tweaker-peter': 1,
+    'umbriel': 1,
+    'viking-peter': 1,
+    'chicken-fight': 2,
+    'claw-machine': 1,
+    'golfer-amy': 2,
+    'medicated-stewie': 1,
+    'obedience-school-brian': 1,
+    'wingnut-amy': 2,
+}
+
 chs = [
         'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'steve',
         'bill', 'gene', 'hayley', 'hermes', 'klaus', 'luanns', 'meg', 'professor-farnsworth', 'quagmire', 'teddy', 
@@ -332,7 +366,7 @@ skill_factor = {
 
 
 
-maxm = {'hp': 0, 'atk': 0}
+skill_rec = {'hp': 0, 'atk': 0}
 bges = [#'none',
         'educated', 
         #'hyper',
@@ -350,21 +384,27 @@ bges = [#'none',
 tr = {}
 rec = {}
 score_dict = {}
+cm_dict = {}
+char_dict = {}
 NBGE = 7
+ct_lvl_1 = 0
+ct_lvl_18 = 0
+ct_myth = 0
+ct_leg = 0
 
 with open('combos', 'rb') as f:
     data = pickle.load(f)
-    
 
     for ch in chs:
         rec[ch] = {}
         for cd in data[ch]:
-            maxm['atk'] = max(maxm['atk'], cd.atk)
-            maxm['hp'] = max(maxm['hp'], cd.hp)
+            skill_rec['atk'] = max(skill_rec['atk'], cd.atk)
+            skill_rec['hp'] = max(skill_rec['hp'], cd.hp)
+            char_dict[cd.slug] = ch
             for sk in cd.skills:
-                if not sk[0] in maxm:
-                    maxm[sk[0]] = 0
-                maxm[sk[0]] = max(maxm[sk[0]], sk[1])
+                if not sk[0] in skill_rec:
+                    skill_rec[sk[0]] = 0
+                skill_rec[sk[0]] = max(skill_rec[sk[0]], sk[1])
     def dual_skill_bonus(arr):
         st = []
         bonus = 1
@@ -397,9 +437,10 @@ with open('combos', 'rb') as f:
         return bonus
 
     debug = False
-    verbose = {'bge': 'athletic', 'ch': 'mythic-dr-zoidberg'}
+    verbose_list = ['one-man-musical', 'dream-guitar']
     BGE_affected = True
     def lack_of_skill_factor(num):
+        return 1.0
         if num == 3:
             return 1.0
         elif num == 2:
@@ -407,13 +448,9 @@ with open('combos', 'rb') as f:
         elif num == 1:
             return 1.2
     for bge in bges:
-        if debug:
-            if verbose['bge'] != bge:
-                continue
+        if not (bge + '_combos') in skill_rec:
+            skill_rec[bge + '_combos'] = {}
         for ch in chs:
-            if debug:
-                if verbose['ch'] != ch:
-                    continue
             combo_values = []
             for cd in data[ch]:
                 if cd.trait != bge:
@@ -422,31 +459,36 @@ with open('combos', 'rb') as f:
                     if not (cd.item_rarity in ['legendary', 'mythic']):
                         continue
                 combo_value = 0.0
-                combo_value += cd.atk/maxm['atk'] * 1.2
-                combo_value += cd.hp/maxm['hp'] * 1
-                #print([0, combo_value])
+                combo_value += cd.atk/skill_rec['atk'] * 1.2
+                combo_value += cd.hp/skill_rec['hp'] * 1
                 if debug:
-                    print([1, combo_value])
+                    if ('lvl' in ch):
+                        if cd.slug in verbose_list:
+                            print([cd.slug, 'base', combo_value])
                 for sk in cd.skills:
                     sk_factor = 0.1
                     #for skc in skill_factor[sk[0]]:
                     #    if sk[1] >= skc[1]:
                     #        sk_factor = max(sk_factor, skc[0])
                     sk_factor = skill_factor[sk[0]]
-                    delta = sk[1]/maxm[sk[0]] * sk_factor * lack_of_skill_factor(len(cd.skills))
+                    delta = sk[1]/skill_rec[sk[0]] * sk_factor * lack_of_skill_factor(len(cd.skills))
                     combo_value += delta
                     if debug:
-                        pass
-                        #print([1, sk, skill_factor[sk[0]], maxm[sk[0]], delta])
-                if debug:
-                    print([cd.slug, cd.skills, combo_value])
+                        if ('lvl' in ch):
+                            if cd.slug in verbose_list:
+                                print([cd.slug, sk[0], delta])
+                        #print([1, sk, skill_factor[sk[0]], skill_rec[sk[0]], delta])
                 #combo_value *= dual_skill_bonus(cd.skills)
-                score_dict[ch + '+' + cd.item_slug] = combo_value
-                combo_values.append(combo_value)
-            if debug:
-                print([ch, combo_values])
-            if debug:
-                continue
+                if cd.slug in combo_mastery:
+                    cm_dict[ch + '+' + cd.item_slug] = combo_mastery[cd.slug]
+                score_dict[ch + '+' + cd.item_slug] = combo_value;
+                if not ('_lvl_18' in cd.item_slug):
+                    combo_values.append(combo_value)
+                if ('lvl' in ch) and (cd.item_rarity == 'legendary'):
+                    if not cd.slug in skill_rec[bge + '_combos']:
+                        skill_rec[bge + '_combos'][cd.slug] = 0.0
+                    skill_rec[bge + '_combos'][cd.slug] = max(skill_rec[bge + '_combos'][cd.slug], combo_value)
+
             combo_values.sort()
             tr[ch] = 0.0
             n = 20 #min(20, len(combo_values))
@@ -462,8 +504,6 @@ with open('combos', 'rb') as f:
             #print(tr[ch])
             #tr[ch] += len(combo_values) / 100
             #print(len(combo_values)/100)
-        if debug:
-            continue
         sorted_x = sorted(tr.items(), key=operator.itemgetter(1))
         maxx = 0.0
         for x in sorted_x:
@@ -476,65 +516,151 @@ with open('combos', 'rb') as f:
                 chd[x[0]] = 0.0
         for ch in chs:
             rec[ch][bge] = ("%.2f"%chd[ch])
-    csv = ' , BGE Score ,sum of top 7,'
-    md = '| | BGE Score | Sum of top 7 |'
-    for bge in bges:
-        csv += bge + ','
-        md += bge + '|'
-    csv += '\n'
-    md += '\n| --- | --- | --- |'
-    for bge in bges:
-        md +=' --- |'
-    md += '\n|'
-    idx = 1
-    def sum_of_top7_BGE(ch):
-        sm = 0.0
-        arr = []
-        sum_of_factors_BGE = 0.0
-        sum_of_factors = 0.0
+
+    def lvl_filter(ch):
+        return 'lvl' in ch
+    def lvl_relrker(ch):
+        global ct_lvl_1
+        global ct_lvl_18
+        if ch[-1] == '1':
+            ct_lvl_1 += 1
+            ch_type = 'mythic'
+        else:
+            ct_lvl_18 += 1
+            ch_type = 'legendary'
+        return ct_lvl_1 if ch_type == 'mythic' else ct_lvl_18 + 1000
+    def myth_relrker(ch):
+        global ct_myth
+        ct_myth += 1
+        return ct_myth
+    def leg_relrker(ch):
+        global ct_leg
+        ct_leg += 1
+        return ct_leg
+        
+    def make_report(ch_filter, rel_rker):
+        csv = ' ,rel-rk,BGE Score ,sum of top 7,'
+        md = '| | rel-rk | BGE Score | Sum of top 7 |'
         for bge in bges:
-            BGE_factor = 1.0
-            if bge in current_BGE:
-                BGE_factor = 3.0
-            arr.append((float(rec[ch][bge]))*BGE_factor)
-            sum_of_factors_BGE += BGE_factor
-            sum_of_factors += 1.0
-        arr.sort()
-        for i in range(1, NBGE + 1):
-            sm += arr[-i]
-        return sm * sum_of_factors/sum_of_factors_BGE
-    def sum_of_top7(ch):
-        sm = 0.0
-        arr = []
+            csv += bge + ','
+            md += bge + '|'
+        csv += '\n'
+        md += '\n| --- | --- | --- |'
         for bge in bges:
-            BGE_factor = 1.0
-            arr.append((float(rec[ch][bge]))*BGE_factor)
-        arr.sort()
-        for i in range(1, NBGE + 1):
-            sm += arr[-i]
-        return sm
-    if not debug:
+            md +=' --- |'
+        md += '\n|'
+        idx = 1
+        def sum_of_top7_BGE(ch):
+            sm = 0.0
+            arr = []
+            sum_of_factors_BGE = 0.0
+            sum_of_factors = 0.0
+            for bge in bges:
+                BGE_factor = 1.0
+                if bge in current_BGE:
+                    BGE_factor = 3.0
+                arr.append((float(rec[ch][bge]))*BGE_factor)
+                sum_of_factors_BGE += BGE_factor
+                sum_of_factors += 1.0
+            arr.sort()
+            for i in range(1, NBGE + 1):
+                sm += arr[-i]
+            return sm * sum_of_factors/sum_of_factors_BGE
+        def sum_of_top7(ch):
+            sm = 0.0
+            arr = []
+            for bge in bges:
+                BGE_factor = 1.0
+                arr.append((float(rec[ch][bge]))*BGE_factor)
+            arr.sort()
+            for i in range(1, NBGE + 1):
+                sm += arr[-i]
+            return sm
         ch_srt = []
         for ch in chs:
             ch_srt.append([ch, sum_of_top7_BGE(ch)])
         ch_srt.sort(key = lambda x : x[1], reverse = True)
         for ch_pair in ch_srt:
             ch = ch_pair[0]
-            if not ('lvl' in ch):
+            if not ch_filter(ch):
                 continue
+        for ch_pair in ch_srt:
+            ch = ch_pair[0]
+            if not ch_filter(ch):
+                continue
+            rel_rk = rel_rker(ch)
             idx += 1
-            csv += ch + ',%.2f,%.2f'%(sum_of_top7_BGE(ch), sum_of_top7(ch))
-            md += ch + '| %.2f | %.2f |'%(sum_of_top7_BGE(ch), sum_of_top7(ch))
+            csv += ch + ',%d,%.2f,%.2f,'%(rel_rk, sum_of_top7_BGE(ch), sum_of_top7(ch))
+            md += ch + '| %d | %.2f | %.2f |'%(rel_rk, sum_of_top7_BGE(ch), sum_of_top7(ch))
             for bge in bges:
                 csv += rec[ch][bge] + ','
                 md += rec[ch][bge] + '|'
             csv += '\n'
             md += '\n|'
+        return md, csv
 
-        with open('tb.txt', 'w') as f:
-            f.write(md)
-        with open('scores.json', 'w') as f:
-            f.write('data = \'' + json.dumps(score_dict) + '\';')
+    bge_md = '| BGE | Score |\n'
+
+    for bge in bges:
+        carr = []
+        for k, v in skill_rec[bge + '_combos'].items():
+            carr.append(v)
+        NN = 1 #len(skill_rec[bge + '_combos'])
+        assert(len(carr) >= NN)
+        carr.sort()
+        sm = 0.0
+        nm = 0
+        for i in range(0, NN):
+            nm += 1
+            sm += carr[-(i+1)]
+        bge_md += '| %s | %f.2 |\n'%(bge, sm/nm)
+
+    best_combo_md = '| Combo | Score | BGE | BGE Rank | BGE % |\n'
+    char_counts = {}
+    if True:
+        carr = []
+        bge_rk = {}
+        for bge in bges:
+            bge_rk[bge] = 0
+        for bge in bges:
+            for k, v in skill_rec[bge + '_combos'].items():
+                carr.append([k, v, bge])
+        carr.sort(key = lambda x: x[1], reverse = True)
+        num = 0
+        for pr in carr:
+            bge_rk[pr[2]] += 1 
+            num += 1
+            best_combo_md += '| %s | %f.2 | %s | %d | %.2f |\n'%(pr[0], pr[1], pr[2], bge_rk[pr[2]], bge_rk[pr[2]]/num)
+            if pr[1] > 4:
+                if not (char_dict[pr[0]] in char_counts):
+                    char_counts[char_dict[pr[0]]] = 0
+                char_counts[char_dict[pr[0]]] += 1
+        for k, v in char_counts.items():
+            best_combo_md += '| %s | %d |\n'%(k, v)
+
+    md, csv = make_report(lvl_filter, lvl_relrker)
+    with open('tb.txt', 'w') as f:
+        f.write(md)
+    with open('tb.csv', 'w') as f:
+        f.write(csv)
+    md, csv = make_report(lambda ch: 'mythic' in ch, myth_relrker)
+    with open('tb-myth.txt', 'w') as f:
+        f.write(md)
+    with open('tb-myth.csv', 'w') as f:
+        f.write(csv)
+    md, csv = make_report(lambda ch: not('mythic' in ch) and not ('lvl' in ch), leg_relrker)
+    with open('tb-leg.txt', 'w') as f:
+        f.write(md)
+    with open('tb-leg.csv', 'w') as f:
+        f.write(csv)
+    with open('scores.json', 'w') as f:
+        f.write('data = \'' + json.dumps(score_dict) + '\';')
+    with open('cm.json', 'w') as f:
+        f.write('cm_data = \'' + json.dumps(cm_dict) + '\';')
+    with open('bge.md', 'w') as f:
+        f.write(bge_md)
+    with open('best_combo.md', 'w') as f:
+        f.write(best_combo_md)
 
 
 
