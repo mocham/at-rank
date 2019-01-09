@@ -35,6 +35,7 @@ var my_cm = {
 var my_deck = [
     'peter_lvl_18',
     'dr-amy-wong',
+    'mythic-bob_lvl_1',
     'mythic-dr-zoidberg_lvl_1',
     'eugene-belcher_lvl_18',
     'mythic-stan_lvl_1',
