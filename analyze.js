@@ -6,8 +6,8 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
     }
     var total_scores = {};
     var scores_arr = {};
-    chs.forEach(ch=>{total_scores[ch]=0.0; scores_arr[ch] = [];});
-    its.forEach(it=>{total_scores[it]=0.0; scores_arr[it] = [];});
+    chs.forEach(function(ch){total_scores[ch]=0.0; scores_arr[ch] = [];});
+    its.forEach(function(it){total_scores[it]=0.0; scores_arr[it] = [];});
     chs.forEach(
       function(ch){
         if (scores_arr[ch].length > 0) return;
@@ -27,7 +27,7 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
         );
     }
     );
-    its.forEach(it=>{
+    its.forEach(function(it){
         if (total_scores[it] > 0.1) return;
         scores_arr[it].sort();
         for (var i = 1; i <= scores_arr[it].length; i++){
@@ -39,7 +39,7 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
         }
       }
     );
-    chs.forEach(ch=>{
+    chs.forEach(function(ch){
         if (total_scores[ch] > 0.1) return;
         scores_arr[ch].sort();
         for (var i = 1; i <= scores_arr[ch].length; i++){
@@ -51,11 +51,11 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
         }
       }
     );
-    chs.sort((c1, c2)=>{return total_scores[c2]-total_scores[c1]});
-    its.sort((c1, c2)=>{return total_scores[c2]-total_scores[c1]});
+    chs.sort(function(c1, c2){return total_scores[c2]-total_scores[c1]});
+    its.sort(function(c1, c2){return total_scores[c2]-total_scores[c1]});
     var eva = 0.0;
-    chs.forEach((ch)=>{eva += total_scores[ch];});
-    its.forEach((it)=>{eva += total_scores[it];});
+    chs.forEach(function(ch){eva += total_scores[ch];});
+    its.forEach(function(it){eva += total_scores[it];});
     return [mydict, chs, its, total_scores, eva];
 };
 
@@ -88,7 +88,7 @@ var find_worst = function(chs, its, skill = 'deck-power'){
         }
     }
 };
-var filter_cards = (clist = get_clist() ) =>{
+var filter_cards = function(clist = get_clist() ) {
     var chs = [];
     var its = [];
     clist.forEach(
@@ -99,7 +99,7 @@ var filter_cards = (clist = get_clist() ) =>{
     );
     return [chs, its];
 };
-var optimize_deck = ()=>{
+var optimize_deck = function(){
     while (worst_card != 'none'){
         var fres = filter_cards();
         var chs = fres[0];

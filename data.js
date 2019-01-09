@@ -100,7 +100,7 @@ var mine = function() {
     );
     document.getElementById('cm-list-input').value = s1.slice(1);
 };
-var def_deck = ()=>{
+var def_deck = function(){
     var s = "bucks-stud,leon-petard,mythic-dr-zoidberg_lvl_1,eugene-belcher_lvl_18,mythic-stan_lvl_1,hank-hill,hank-hill,mythic-peggy_lvl_1,mythic-bobby_lvl_1,bobby,bill-dauterive,bill-dauterive,bill-dauterive,bill-dauterive,dr-cahill_lvl_18,stuffington-academy_lvl_18,dr-banjo,student-lucky,quahog-preschool,groff-community-college,professor-lerner,leon-petard_lvl_18,hypnotoad,quahog-martial-arts-academy_lvl_18";
     document.getElementById('card-list-input').value = s;
 };

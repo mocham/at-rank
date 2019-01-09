@@ -1,18 +1,18 @@
-var get_clist = ()=>{
+var get_clist = function(){
     var l0 = document.getElementById('card-list-input').value.split('\n');
     var l1 = [];
     l0.forEach(
-        (cd) => {
+        function(cd) {
             cd = cd.toLowerCase().replace(/\s+/g, '');
             if (cd.length > 0) l1.push(cd);
         }
     );
     var lcm = document.getElementById('cm-list-input').value.split('\n');
     Object.keys(cmdata).forEach(
-        (cm) => {cmdata[cm] = 0;}   
+        function(cm) {cmdata[cm] = 0;}   
     );
     lcm.forEach(
-        (cd) => {
+        function(cd)  {
             cd = cd.toLowerCase().replace(/\s+/g, '');
             if (cd.length > 0){
                 cmdata[cd] += 1;
@@ -21,7 +21,7 @@ var get_clist = ()=>{
     );
     return l1;
 };
-var skill_img_tag = (sk) => {
+var skill_img_tag = function(sk) {
     return '<img src="img/skill_' + sk + '.png" style="max-width:100%;max-height:100%;height:14px;width:14px;">';
 };
 var bge_img_tag = function(it){
@@ -31,7 +31,7 @@ var bge_img_tag = function(it){
     bge = traits[it];
     return '<img src="img/icon_large_' + bge + '.png" style="max-width:100%;max-height:100%;height:20px;width:20px;">';
 };
-var delete_card = (slug) => {
+var delete_card = function(slug)  {
     var clist = get_clist();
     var pos = -1;
     for (var i = 0; i < clist.length; i++){
