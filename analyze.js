@@ -27,7 +27,7 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
         );
     }
     );
-    var sharpness =parseFloat(document.getElementById("sharpness"));
+    var sharpness =parseFloat(document.getElementById("sharpness").value);
     if (sharpness < 0.5){ sharpness = 0.5;}
     else if (sharpness > 1) {sharpness = 1;}
     else if ((sharpness >= 0.5) && (sharpness <=1)) { sharpness = sharpness;}
