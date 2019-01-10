@@ -6,6 +6,7 @@ from lxml.html import tostring, fromstring
 import json
 from selenium import webdriver
 
+
 skill_dict = {
     'bodyguard': 'bodyguard',
     'inspire': 'motivate',
@@ -125,6 +126,17 @@ maxed_out_items = {
     'tom-landry-middle-school': [17, 39],
     'blernsball': [12, 42],
     'james-woods-high-school': [11,46],
+    'turnin-jeff': [20, 35],
+    'legendary-toad-licking': [18, 37],
+    'shrimp-dress': [11, 50],
+    'fart-school-for-the-gifted': [8, 48],
+    'fart-school-jimmy-jr': [9, 50],
+    'wine-bucket': [10, 46],
+    'student-lucky': [18, 38],
+    'iraq-lobster': [18, 33],
+    'rogers-closet': [14, 41],
+    'legendary-james-woods-high-school': [11, 46],
+    'bandit': [19, 36],
 }
 
 stats = {

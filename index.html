@@ -6,6 +6,7 @@
 
   <title>Deck power visualization tool, built by mlibna@reddit</title>
   <link rel="stylesheet" href="w3.css">
+  <link rel="stylesheet" href="atd.css">
   <script>
     function jsUcfirst(string){
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -282,8 +283,8 @@
       <div class="upper">
           <button type="button" onclick="best_combo()" class="b1">Starting hand analysis</button>
           <button type="button" onclick="go()" class="b2">Deck power analysis</button>
-          <button type="button" onclick="optimize_deck()" class="b3">Optimize</button>
-          <button type="button" class="b4" onclick="document.getElementById('myModal').style.display='block';" id="myBtn">Analyse skills</button>
+          <button type="button" id="btn_optm" class="b3">Optimize</button>
+          <button type="button" class="b4" id="myBtn">Analyse skills</button>
           <button type="button" onclick="alert('dr-amy-wong_lvl_18,hank-hill,bobby,mythic-dr-zoidberg_lvl_1,eugene-belcher,leon-petard,hypnotoad,student-lucky,book-of-spells,iraq-lobster');" class="b5">Example</button>
     </div>
         <textarea placeholder="List of cards, one card each line..." type="text" id="card-list-input" class="middle" style="font-size: 2vw;"></textarea>
@@ -300,11 +301,11 @@
   </div>
 
 
-<div id="myModal" style="display:none;position:fixed;z-index:3;left:30%;top:20%;width:40%;height:70%;overflow:vertical;">
+<div id="myModal" class="modal">
 
   <!-- Modal content -->
   <div class="modal-content">
-    <span class="close">&times;</span>
+    <span class="close" id="close_skl">&times;</span>
     <div><span>Skill cap</span><input id="sk-cap"></div>
     <div id="skl-popdown"></div>
     <div id="chosen-skl" style="display:none;">all-skill</div>
@@ -318,7 +319,12 @@ var modal = document.getElementById('myModal');
 var btn = document.getElementById("myBtn");
 
 // Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
+var span = document.getElementById("close_skl");
+
+// When the user clicks on the button, open the modal 
+btn.onclick = function() {
+  modal.style.display = "block";
+}
 
 // When the user clicks on <span> (x), close the modal
 span.onclick = function() {
@@ -329,6 +335,45 @@ span.onclick = function() {
 window.onclick = function(event) {
   if (event.target == modal) {
     modal.style.display = "none";
+  }
+}
+</script>
+</div>
+
+
+<div id="myModal_optm" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close" id="close_optm">&times;</span>
+    <input id="sharpness" placeholder="A value 0.5-1. Most stable: 0.5, most sharp: 1.0.">
+    <button onclick="optimize_deck()">Start!</button>
+  </div>
+
+<script>
+// Get the modal
+var modal_optm = document.getElementById('myModal_optm');
+
+// Get the button that opens the modal
+var btn_optm = document.getElementById("btn_optm");
+
+// Get the <span> element that closes the modal
+var span_optm = document.getElementById("close_optm");
+
+// When the user clicks on the button, open the modal 
+btn_optm.onclick = function() {
+  modal_optm.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span_optm.onclick = function() {
+  modal_optm.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal_optm) {
+    modal_optm.style.display = "none";
   }
 }
 </script>

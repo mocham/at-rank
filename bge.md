@@ -1,11 +1,11 @@
 | BGE | Score |
-| educated | 4.637752.2 |
+| educated | 5.032446.2 |
 | addicted | 5.407555.2 |
 | armed | 4.833974.2 |
 | athletic | 4.408988.2 |
 | fighter | 4.366866.2 |
-| disguised | 4.401517.2 |
-| musical | 4.424153.2 |
-| animal | 4.454905.2 |
-| artistic | 4.049447.2 |
+| disguised | 4.685464.2 |
+| musical | 4.456538.2 |
+| animal | 4.931111.2 |
+| artistic | 5.043250.2 |
 | drunk | 4.232083.2 |

@@ -85,5 +85,5 @@ var delete_btn = function(slug, wrap = true){
     else{
         style = code + ' style="width:12vw;">' + rarity_img_tag(slug) + h;
     }
-    return '<button ' + style + slug + '</button>';
+    return '<button ' + style + reduced_slug(slug) + '</button>';
 };

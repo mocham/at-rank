@@ -2,6 +2,15 @@ import pickle, operator
 from math import sqrt
 import json
 
+bge_effect = [
+    {
+        'bge': 'artistic',
+        'atk': [['atk', 0.5]],
+        'hp': [['leech', 0.2]],
+    }
+]
+
+
 class at_card:
     def __init__(self, atk, hp):
         self.atk = atk
@@ -337,10 +346,17 @@ skill_dict = {
     'healall': 'heal-all',
     'shrapnel': 'bomb',
     'hijack': 'hijack',
+    'atk': 'atk',
+    'hp': 'hp',
 }
 
+inverse_skill_dict = {}
+for sk in skill_dict:
+    inverse_skill_dict[skill_dict[sk]] = sk
 
 skill_factor = {
+    'atk': 1.2,
+    'hp': 1.0,
     'bodyguard': 0.9, #'bodyguard',
     'inspire': 1.5, #'motivate',
     'pierce': 0.5, #'jab',
@@ -458,13 +474,18 @@ with open('combos', 'rb') as f:
                 if cd.char_rarity in ['legendary', 'mythic']:
                     if not (cd.item_rarity in ['legendary', 'mythic']):
                         continue
+                combo_value_dict = {}
                 combo_value = 0.0
-                combo_value += cd.atk/skill_rec['atk'] * 1.2
-                combo_value += cd.hp/skill_rec['hp'] * 1
-                if debug:
-                    if ('lvl' in ch):
-                        if cd.slug in verbose_list:
-                            print([cd.slug, 'base', combo_value])
+                for sk in skill_dict:
+                    combo_value_dict[sk] = 0.0
+                combo_value_dict['atk'] = cd.atk/skill_rec['atk'] * 1.2
+                combo_value_dict['hp'] = cd.hp/skill_rec['hp'] * 1
+                for bgeef in bge_effect:
+                    if cd.trait == bgeef['bge']:
+                        for pr in bgeef['atk']:
+                            cd.skills.append([inverse_skill_dict[pr[0]], pr[1] * cd.atk])
+                        for pr in bgeef['hp']:
+                            cd.skills.append([inverse_skill_dict[pr[0]], pr[1] * cd.hp])
                 for sk in cd.skills:
                     sk_factor = 0.1
                     #for skc in skill_factor[sk[0]]:
@@ -472,13 +493,15 @@ with open('combos', 'rb') as f:
                     #        sk_factor = max(sk_factor, skc[0])
                     sk_factor = skill_factor[sk[0]]
                     delta = sk[1]/skill_rec[sk[0]] * sk_factor * lack_of_skill_factor(len(cd.skills))
-                    combo_value += delta
+                    combo_value_dict[sk[0]] += delta
+                    if cd.slug == 'cloud-painter':
+                        print(sk[0], delta)
                     if debug:
                         if ('lvl' in ch):
                             if cd.slug in verbose_list:
                                 print([cd.slug, sk[0], delta])
-                        #print([1, sk, skill_factor[sk[0]], skill_rec[sk[0]], delta])
-                #combo_value *= dual_skill_bonus(cd.skills)
+                for sk in combo_value_dict:
+                    combo_value += combo_value_dict[sk]
                 if cd.slug in combo_mastery:
                     cm_dict[ch + '+' + cd.item_slug] = combo_mastery[cd.slug]
                 score_dict[ch + '+' + cd.item_slug] = combo_value;
