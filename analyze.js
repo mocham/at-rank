@@ -71,7 +71,7 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
     chs.forEach(function(ch){eva_c += total_scores[ch]*fct;});
     fct = 1.0;
     its.forEach(function(it){eva_i += total_scores[it]*fct;});
-    eva = Math.min(eva_c, eva_i)*10;// + Math.max(eva_c, eva_i);
+    eva = Math.max(eva_c, eva_i)*10;// + Math.max(eva_c, eva_i);
     return [mydict, chs, its, total_scores, eva, eva_c*10, eva_i*10];
 };
 
@@ -227,6 +227,7 @@ var deep_optimize = function(_chs, _its, has_fixed_slots){
         best_combo(mchs.concat(mits));
     }
 };
+var fixed_slots;
 var optimize_deck = function(has_fixed_slots = false){
     var worst_card = '';
     while (worst_card != 'none'){
@@ -241,7 +242,7 @@ var optimize_deck = function(has_fixed_slots = false){
         else{
             fixed_slots = [];
         }
-        if (chs.length + fixed_slots.length <= 15){
+        if (chs.length + fixed_slots.length <= 14){
             deep_optimize(chs, its, has_fixed_slots);
             return;
         }
