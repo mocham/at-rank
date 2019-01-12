@@ -28,11 +28,16 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
     }
     );
     var sharpness =parseFloat(document.getElementById("sharpness").value);
-    if (sharpness < 0.5){ sharpness = 0.5;}
-    else if (sharpness > 1) {sharpness = 1;}
-    else if ((sharpness >= 0.5) && (sharpness <=1)) { sharpness = sharpness;}
+    var sh_a = 0.1;
+    var sh_b = 10;
+    if (sharpness < sh_a){ sharpness = sh_a;}
+    else if (sharpness > sh_b) {sharpness = sh_b;}
+    else if ((sharpness >= sh_a - 0.01) && (sharpness <=sh_b + 0.01)) { sharpness = sharpness;}
     else {sharpness = 1.0;}
-    var factor_foo = (i)=>{return Math.exp(sharpness* Math.log(i));};
+    //console.log("Sharpness = " + sharpness.toString());
+    var factor_foo = (i)=>{
+        var x = Math.exp(sharpness *  Math.log(i)); return x;
+    };
     its.forEach(function(it){
         if (total_scores[it] > 0.1) return;
         scores_arr[it].sort();
@@ -60,13 +65,17 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
     chs.sort(function(c1, c2){return total_scores[c2]-total_scores[c1]});
     its.sort(function(c1, c2){return total_scores[c2]-total_scores[c1]});
     var eva = 0.0;
+    var eva_c = 0.0;
+    var eva_i = 0.0;
     var fct = 1.0;
-    chs.forEach(function(ch){eva += total_scores[ch]*fct; fct -=0.02;});
-    its.forEach(function(it){eva += total_scores[it]*fct; fct -=0.02});
-    return [mydict, chs, its, total_scores, eva];
+    chs.forEach(function(ch){eva_c += total_scores[ch]*fct;});
+    fct = 1.0;
+    its.forEach(function(it){eva_i += total_scores[it]*fct;});
+    eva = Math.min(eva_c, eva_i)*10;// + Math.max(eva_c, eva_i);
+    return [mydict, chs, its, total_scores, eva, eva_c*10, eva_i*10];
 };
 
-var find_worst = function(chs, its, skill = 'deck-power'){
+var find_worst = function(chs, its, skill = 'deck-power', item_only = false){
     var ares = analyse_card_list(chs, its, skill);
     var mydict = ares[0];
     chs = ares[1];
@@ -80,7 +89,10 @@ var find_worst = function(chs, its, skill = 'deck-power'){
         if (chs.length > 12) { return chs[chs.length-1]; }
         else {return 'none';}
     }
-    else {
+    else if (item_only){
+        return its[its.length - 1];
+    }
+    else{
         it1 = its[its.length - 1];
         it2 = its[its.length - 2];
         ch1 = chs[chs.length - 1];
@@ -95,14 +107,16 @@ var find_worst = function(chs, its, skill = 'deck-power'){
         }
     }
 };
-var remove_worst = function(chs, its, skill = 'deck-power'){
-    while (true){
-        var cd = find_worst(chs, its, skill);
-        if (cd == 'none') return;
-        remove_subset(chs, [cd]);
+var remove_worst = function(chs, its, skill = 'deck-power', item_only = false){
+    var cd = find_worst(chs, its, skill, item_only);
+    if (cd == 'none') return;
+    if (item_only){
         remove_subset(its, [cd]);
     }
-    
+    else{
+        remove_subset(its, [cd]);
+        remove_subset(chs, [cd]);
+    }
 };
 var filter_cards = function(clist = get_clist() ) {
     var chs = [];
@@ -116,21 +130,34 @@ var filter_cards = function(clist = get_clist() ) {
     return [chs, its];
 };
 var gen_sel = function*(set, num, start = 0){
-    if (start + num >= set.length) return;
-    if (num <= 1){
-        for (var i = start; i < set.length; i++) yield  [[set[i]], i];
+    if (num == 0){ yield []; }
+    else if (start + num == set.length) {
+        var nss = [];
+        for (var i = start; i < set.length; i++) nss.push(set[i]);
+        yield nss;
+    }
+    else if (start + num > set.length) {}
+    else if (num == 1){
+        for (var i = start; i < set.length; i++) yield [set[i]];
     }
     else{
         for (var subset of gen_sel(set, num - 1, start + 1)){
-            for (var i = subset[1] + 1; i < set.length; i++){
-                var nss = [];
-                for (var x of subset[0]) nss.push(x);
-                nss.push(set[i]);
-                yield [nss, i];
-            }
+            var nss = [];
+            for (var x of subset) nss.push(x);
+            nss.push(set[start]);
+            yield(nss);
         }
+        yield* gen_sel(set, num, start + 1);
     }
 };
+var gen_sel_opt = function*(set, num){
+    if (num * 2 < set.length){
+        yield*gen_sel(set, num);
+    }
+    else{
+        yield*gen_sel(set, num);
+    }
+}
 var remove_subset = function(set, _subset){
     var subset = [];
     for (var x of _subset) subset.push(x); 
@@ -153,25 +180,35 @@ var remove_subset = function(set, _subset){
         }
     }
 }
-var deep_optimize = function(_chs, _its){
+var deep_optimize = function(_chs, _its, has_fixed_slots){
     var max_sc = 0.0;
     var mchs, mits;
     var chs = [];
     //var ress = [];
     for (var x of _chs) chs.push(x); 
-
-    for (var _subset of gen_sel(chs, chs.length - 12)){
-        var subset = [];
-        for (var x of _subset[0]) subset.push(x); 
+    var scores = [];
+    var char_num = 12;
+    if (has_fixed_slots){
+        char_num -= fixed_slots.length;
+    }
+    var cts = 0;
+    console.log(['Choose', chs.length, char_num]);
+    for (var _subset of gen_sel(chs, char_num)){
+        cts += 1;
         var nchs = [];
-        for (var x of chs) nchs.push(x); 
-        remove_subset(nchs, subset);
+        for (var x of _subset) nchs.push(x); 
         var its = [];
         for (var x of _its) its.push(x);
+        if (has_fixed_slots){
+            for (var x of fixed_slots) {
+                nchs.push(x);
+            }
+        }
         while (its.length > 12){
-            remove_worst(nchs, its);
+            remove_worst(nchs, its, 'deck-power', true);
         }
         var nsc = analyse_card_list(nchs, its)[4];
+        scores.push(nsc);
         if (nsc > max_sc){
             max_sc = nsc;
             //ress.push([max_sc, nchs, its])
@@ -181,20 +218,31 @@ var deep_optimize = function(_chs, _its){
             for (var x of its) mits.push(x);
         }
     }
+    console.log(['cts', cts]);
+    scores.sort();
     if (max_sc  > 0.1){
         var h = make_table(mchs, mits, 'deck-power');
         document.getElementById('table').innerHTML = h;    
+        //document.getElementById('card-list-input').value = mchs.join('\n') + '\n' +mits.join('\n');
+        best_combo(mchs.concat(mits));
     }
 };
-var optimize_deck = function(){
+var optimize_deck = function(has_fixed_slots = false){
+    var worst_card = '';
     while (worst_card != 'none'){
         var fres = filter_cards();
         var chs = fres[0];
         var its = fres[1];
-        var worst_card = find_worst(chs, its, 'deck-power');
+        worst_card = find_worst(chs, its, 'deck-power');
         if (worst_card == 'none'){ break; }
-        if (chs.length <= 17){
-            deep_optimize(chs, its);
+        if (has_fixed_slots){
+            remove_subset(chs, fixed_slots);
+        }
+        else{
+            fixed_slots = [];
+        }
+        if (chs.length + fixed_slots.length <= 15){
+            deep_optimize(chs, its, has_fixed_slots);
             return;
         }
         delete_card(worst_card);
