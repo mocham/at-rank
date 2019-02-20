@@ -21,6 +21,24 @@ var analyse_card_list = function(chs, its, skill = 'deck-power'){
                 }
                 if ((ch + '+' + it) in mydict){
                     scores_arr[ch].push(mydict[ch + '+' + it] * cm_factor);
+                }
+            }
+        );
+    }
+    );
+    
+    its.forEach(
+      function(it){
+        if (scores_arr[it].length > 0) return;
+        chs.forEach(
+            function(ch){
+                var cm_factor = 1.0;
+                var cm = 0.0;
+                if (combos[(ch + '+' + it)] in cmdata){
+                    cm = cmdata[combos[ch + '+' + it]];
+                    cm_factor += cm/10;
+                }
+                if ((ch + '+' + it) in mydict){
                     scores_arr[it].push(mydict[ch + '+' + it] * cm_factor);
                 }
             }
