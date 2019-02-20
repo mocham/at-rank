@@ -185,7 +185,7 @@ var mythic_chs = [
     'mythic-bender',
     'mythic-bobby',
     'mythic-peter',
-    'mythic-tina',
+    'mythic-tina', 'mythic-roger',
 ];
 var chs = [
     'bullock', 'chris', 'dale', 'dr-zoidberg', 'fry', 'hank', 'linda', 'lois', 'mort', 'stevs',    
@@ -227,7 +227,7 @@ var chs = [
     'mythic-bender',
     'mythic-bobby',
     'mythic-peter',
-    'mythic-tina',
+    'mythic-tina', 'mythic-roger',
     ];
 
 mythic_chs.forEach(
